@@ -15,7 +15,7 @@ import { cn } from "@/lib/utils";
 import { useAuth } from "../hooks/useAuth";
 
 const loginSchema = z.object({
-  name: z.string().min(1, "Name is required"),
+  name: z.string().min(2, "Name must be at least 2 characters"),
   email: z.string().email("Invalid email address"),
 });
 
@@ -43,7 +43,7 @@ export function LoginPage() {
           Pawfect Match
           <PawPrint className="size-12" />
         </CardTitle>
-        <CardDescription className="text-gray-300 text-lg">
+        <CardDescription className="text-white/90 text-lg">
           Find your perfect furry friend! Tell us a bit about yourself to get
           started.
         </CardDescription>
@@ -88,7 +88,7 @@ export function LoginPage() {
           <Button
             type="submit"
             disabled={isLoading}
-            className="w-full bg-[#818CF8] hover:bg-[#6366F1] h-12 text-lg"
+            className="w-full bg-[#818CF8] hover:bg-[#6366F1] h-12 text-lg text-white"
           >
             {isLoading ? "Logging in..." : "Start Finding Pets!"}
           </Button>

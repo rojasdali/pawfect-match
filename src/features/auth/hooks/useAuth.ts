@@ -25,13 +25,18 @@ export function useAuth() {
   });
 
   const logoutMutation = useMutation<void, Error, void>({
-    mutationFn: authApi.logout,
-    onSuccess: () => {
-      logout();
-      navigate("/");
+    mutationFn: async () => {
+      try {
+        await authApi.logout();
+      } finally {
+        logout();
+        navigate("/", { replace: true });
+      }
     },
     onError: (error: Error) => {
       console.error("Logout error:", error.message);
+      logout();
+      navigate("/", { replace: true });
     },
   });
 

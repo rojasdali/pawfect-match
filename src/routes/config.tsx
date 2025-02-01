@@ -2,15 +2,28 @@ import { Navigate, Outlet } from "react-router-dom";
 import { useAuthStore } from "@/stores/auth";
 import { AuthLayout } from "@/components/layout/AuthLayout";
 import { LoginPage } from "@/features/auth/pages/LoginPage";
+import { PetsPage } from "@/features/pets/pages/PetsPage";
 
 const ProtectedRoute = () => {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
-  return isAuthenticated ? <Outlet /> : <Navigate to="/" replace />;
+  const user = useAuthStore((state) => state.user);
+
+  if (!isAuthenticated || !user) {
+    return <Navigate to="/" replace />;
+  }
+
+  return <Outlet />;
 };
 
 const PublicRoute = () => {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
-  return !isAuthenticated ? <Outlet /> : <Navigate to="/dogs" replace />;
+  const user = useAuthStore((state) => state.user);
+
+  if (isAuthenticated && user) {
+    return <Navigate to="/dogs" replace />;
+  }
+
+  return <Outlet />;
 };
 
 export const routeConfig = [
@@ -33,7 +46,7 @@ export const routeConfig = [
     children: [
       {
         path: "/dogs",
-        element: <div>Dogs Page (Coming Soon)</div>, // Placeholder
+        element: <PetsPage />,
       },
     ],
   },
