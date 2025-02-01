@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -11,8 +10,9 @@ import {
   CardHeader,
   CardTitle,
   CardDescription,
-} from "@/components/ui/Card";
+} from "@/components/ui/card";
 import { cn } from "@/lib/utils";
+import { useAuth } from "../hooks/useAuth";
 
 const loginSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -22,7 +22,7 @@ const loginSchema = z.object({
 type LoginForm = z.infer<typeof loginSchema>;
 
 export function LoginPage() {
-  const [isLoading, setIsLoading] = useState(false);
+  const { login, isLoading, error } = useAuth();
   const {
     register,
     handleSubmit,
@@ -32,9 +32,7 @@ export function LoginPage() {
   });
 
   const onSubmit = async (data: LoginForm) => {
-    setIsLoading(true);
-    console.log(data);
-    setIsLoading(false);
+    login(data);
   };
 
   return (
@@ -51,6 +49,11 @@ export function LoginPage() {
         </CardDescription>
       </CardHeader>
       <CardContent className="mt-4">
+        {error && (
+          <p className="text-red-500 mb-4">
+            {error instanceof Error ? error.message : "Something went wrong"}
+          </p>
+        )}
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           <div className="space-y-2">
             <Input
@@ -58,7 +61,7 @@ export function LoginPage() {
               type="text"
               placeholder="Your name"
               className={cn(
-                "bg-[#1E293B] border-[#1E293B] h-12 text-lg",
+                "bg-[#1E293B] border-[#1E293B] h-14 text-xl text-white placeholder:text-gray-400",
                 errors.name && "border-red-500"
               )}
             />
@@ -73,7 +76,7 @@ export function LoginPage() {
               type="email"
               placeholder="you@example.com"
               className={cn(
-                "bg-[#1E293B] border-[#1E293B] h-12 text-lg",
+                "bg-[#1E293B] border-[#1E293B] h-14 text-xl text-white placeholder:text-gray-400",
                 errors.email && "border-red-500"
               )}
             />
@@ -87,7 +90,7 @@ export function LoginPage() {
             disabled={isLoading}
             className="w-full bg-[#818CF8] hover:bg-[#6366F1] h-12 text-lg"
           >
-            Start Finding Pets!
+            {isLoading ? "Logging in..." : "Start Finding Pets!"}
           </Button>
         </form>
       </CardContent>

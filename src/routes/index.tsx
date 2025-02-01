@@ -1,13 +1,6 @@
-import { Routes, Route } from "react-router-dom";
-import { AuthLayout } from "@/components/layout/AuthLayout";
-import { LoginPage } from "@/features/auth/pages/LoginPage";
+import { useRoutes } from "react-router-dom";
+import { routeConfig } from "./config";
 
 export function AppRoutes() {
-  return (
-    <Routes>
-      <Route element={<AuthLayout />}>
-        <Route path="/" element={<LoginPage />} />
-      </Route>
-    </Routes>
-  );
+  return useRoutes(routeConfig);
 }
