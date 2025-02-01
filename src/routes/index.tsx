@@ -1,5 +1,5 @@
 import { Routes, Route } from "react-router-dom";
-import { AuthLayout } from "@/features/auth/components/AuthLayout";
+import { AuthLayout } from "@/components/layout/AuthLayout";
 import { LoginPage } from "@/features/auth/pages/LoginPage";
 
 export function AppRoutes() {
