@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Heart, MapPin } from "lucide-react";
 import { PetCardProps } from "../types";
 import { useFavoritesStore } from "@/stores/favorites";
+import { cn } from "@/lib/utils";
 
 export function PetCard({ id, name, breed, age, img, zip_code }: PetCardProps) {
   const { addFavorite, removeFavorite, isFavorite } = useFavoritesStore();
@@ -23,39 +24,47 @@ export function PetCard({ id, name, breed, age, img, zip_code }: PetCardProps) {
   };
 
   return (
-    <Card className="group shadow-sm hover:shadow-md dark:shadow-none bg-[#F1F5F9] dark:bg-card p-3">
-      <div className="aspect-square relative overflow-hidden rounded-md bg-muted">
+    <Card
+      tabIndex={0}
+      className="group relative overflow-hidden hover:shadow-md transition-shadow focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+      aria-label={`${name}, ${breed}, ${age} years old`}
+    >
+      <div className="aspect-square overflow-hidden">
         <img
           src={img}
-          alt={name}
-          className="object-cover w-full h-full transition-transform duration-300 group-hover:scale-105"
-          loading="lazy"
+          alt={`${name} the ${breed}`}
+          className="h-full w-full object-cover transition-transform group-hover:scale-105"
         />
         <Button
           variant="ghost"
           size="icon"
-          className="absolute top-2 right-2 bg-white/90 dark:bg-background/80 backdrop-blur-sm hover:bg-white dark:hover:bg-background/90 group/heart shadow-sm"
-          onClick={handleFavorite}
+          onClick={(e) => {
+            e.stopPropagation();
+            handleFavorite();
+          }}
+          aria-label={
+            favorite
+              ? `Remove ${name} from favorites`
+              : `Add ${name} to favorites`
+          }
+          className="absolute top-2 right-2 bg-white/90 dark:bg-background/80 backdrop-blur-sm hover:bg-white dark:hover:bg-background/90 shadow-sm h-8 w-8 group/heart"
         >
-          {favorite ? (
-            <Heart className="h-5 w-5 fill-red-500 text-red-500" />
-          ) : (
-            <Heart className="h-5 w-5 text-gray-500 transition-colors group-hover/heart:fill-red-500 group-hover/heart:text-red-500" />
-          )}
+          <Heart
+            className={cn(
+              "h-5 w-5 transition-colors",
+              favorite
+                ? "fill-red-500 text-red-500"
+                : "text-gray-500 group-hover/heart:fill-red-500 group-hover/heart:text-red-500"
+            )}
+          />
         </Button>
       </div>
       <CardHeader>
-        <CardTitle className="text-xl text-foreground capitalize">
-          {name}
-        </CardTitle>
-        <CardDescription className="text-muted-foreground">
-          {breed}
-        </CardDescription>
+        <CardTitle className="text-lg">{name}</CardTitle>
+        <CardDescription>{breed}</CardDescription>
       </CardHeader>
       <CardContent className="space-y-2">
-        <p className="text-sm text-muted-foreground">
-          {age} {age === 1 ? "year" : "years"} old
-        </p>
+        <p className="text-sm text-muted-foreground">{age} years old</p>
         <div className="flex items-center gap-1 text-sm text-muted-foreground">
           <MapPin className="h-4 w-4" />
           <span>{zip_code}</span>

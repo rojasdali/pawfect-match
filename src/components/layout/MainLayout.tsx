@@ -1,13 +1,11 @@
 import { Outlet } from "react-router-dom";
-import { Navbar } from "@/components/layout/Navbar";
+import { Navbar } from "./Navbar";
 
 export function MainLayout() {
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className="min-h-screen bg-background">
       <Navbar />
-      <main className="container py-6">
-        <Outlet />
-      </main>
+      <Outlet />
     </div>
   );
 }

@@ -61,24 +61,14 @@ export function PetGrid({
 
   useEffect(() => {
     if (!allPets.length || !hasNextPage) {
-      console.log("Skipping observer setup:", {
-        allPets: allPets.length,
-        hasNextPage,
-      });
       return;
     }
 
     const observer = new IntersectionObserver(
       (entries) => {
         const firstEntry = entries[0];
-        console.log("Intersection:", {
-          isIntersecting: firstEntry.isIntersecting,
-          hasNextPage,
-          isFetchingNextPage,
-        });
 
         if (firstEntry.isIntersecting && hasNextPage && !isFetchingNextPage) {
-          console.log("Fetching next page");
           fetchNextPage();
         }
       },
@@ -86,8 +76,6 @@ export function PetGrid({
     );
 
     const currentTarget = loadMoreRef.current;
-    console.log("Load more element:", { found: !!currentTarget });
-
     if (currentTarget) {
       observer.observe(currentTarget);
     }

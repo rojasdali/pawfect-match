@@ -1,7 +1,16 @@
 import { apiClient } from "@/lib/axios";
 import { Pet } from "../types";
 
-interface SearchPetsResponse {
+interface SearchParams {
+  type: string;
+  pageParam?: number | string;
+  breed?: string;
+  age?: number;
+  zipCode?: string;
+  sort?: string;
+}
+
+interface SearchResponse {
   resultIds: string[];
   total: number;
   next: string | null;
@@ -9,22 +18,14 @@ interface SearchPetsResponse {
 }
 
 export const petsApi = {
-  searchPets: async ({
-    type,
-    pageParam = 0,
-  }: {
-    type: string;
-    pageParam?: number | string;
-  }) => {
-    const { data } = await apiClient.get<SearchPetsResponse>(
-      `/${type}/search`,
-      {
-        params: {
-          from: pageParam,
-          sort: "breed:asc",
-        },
-      }
-    );
+  searchPets: async ({ type, pageParam = 0, ...params }: SearchParams) => {
+    const { data } = await apiClient.get<SearchResponse>(`/${type}/search`, {
+      params: {
+        from: pageParam,
+        sort: "breed:asc",
+        ...params,
+      },
+    });
     return data;
   },
 

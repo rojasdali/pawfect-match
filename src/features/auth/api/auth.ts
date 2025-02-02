@@ -11,11 +11,16 @@ class AuthError extends Error {
 export const authApi = {
   login: async (credentials: LoginData): Promise<User> => {
     try {
-      const { data } = await apiClient.post<User>("/auth/login", {
+      const response = await apiClient.post("/auth/login", {
         name: credentials.name.trim(),
         email: credentials.email.trim().toLowerCase(),
       });
-      return data;
+
+      if (response.status !== 200) {
+        throw new AuthError("Login failed. Please try again.");
+      }
+
+      return credentials;
     } catch (error: any) {
       if (error.response?.status === 401) {
         throw new AuthError("Invalid credentials");

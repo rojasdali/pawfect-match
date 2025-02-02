@@ -3,10 +3,10 @@ import { persist } from "zustand/middleware";
 
 interface FavoritesState {
   favorites: string[];
+  isFavorite: (id: string) => boolean;
   addFavorite: (id: string) => void;
   removeFavorite: (id: string) => void;
   clearFavorites: () => void;
-  isFavorite: (id: string) => boolean;
   getFavoriteCount: () => number;
 }
 
@@ -14,6 +14,7 @@ export const useFavoritesStore = create<FavoritesState>()(
   persist(
     (set, get) => ({
       favorites: [],
+      isFavorite: (id) => get().favorites.includes(id),
       addFavorite: (id) =>
         set((state) => ({
           favorites: [...state.favorites, id],
@@ -23,7 +24,6 @@ export const useFavoritesStore = create<FavoritesState>()(
           favorites: state.favorites.filter((favId) => favId !== id),
         })),
       clearFavorites: () => set({ favorites: [] }),
-      isFavorite: (id) => get().favorites.includes(id),
       getFavoriteCount: () => get().favorites.length,
     }),
     {

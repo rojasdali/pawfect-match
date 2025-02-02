@@ -15,7 +15,6 @@ export function useFavoritesQuery() {
   }) => {
     const page =
       typeof pageParam === "string" ? parseInt(pageParam, 10) : pageParam;
-    console.log("Fetching favorites:", { pageParam });
     setIsLoading(true);
     try {
       const start = page * 25;
@@ -27,15 +26,12 @@ export function useFavoritesQuery() {
       }
 
       const pets = await petsApi.getPetsByIds("dogs", pageIds);
-      console.log("Got favorite pets:", { count: pets.length });
-
       const nextCursor =
         end < favorites.length
           ? (typeof pageParam === "string"
               ? parseInt(pageParam, 10)
               : pageParam) + 1
           : undefined;
-      console.log("Next cursor:", { nextCursor });
 
       const result: PageResult = {
         pets,
