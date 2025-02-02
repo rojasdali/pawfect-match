@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { PawPrint } from "lucide-react";
+import { ROUTES } from "@/config/routes";
 
 export function NotFoundPage() {
   const navigate = useNavigate();
@@ -20,7 +21,7 @@ export function NotFoundPage() {
           </p>
         </div>
         <Button
-          onClick={() => navigate("/dogs")}
+          onClick={() => navigate(ROUTES.HOME)}
           className="bg-[#818CF8] hover:bg-[#818CF8]/90 text-white"
           size="lg"
         >

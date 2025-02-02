@@ -12,7 +12,7 @@ export function useAuth() {
     mutationFn: authApi.login,
     onSuccess: (user) => {
       setUser(user);
-      navigate("/dogs");
+      navigate("/search/dogs?sort=breed:asc");
     },
     onError: (error) => {
       console.error("Login failed:", error);

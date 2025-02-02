@@ -1,11 +1,24 @@
-import { Navigate, useLocation, Outlet } from "react-router-dom";
+import {
+  Navigate,
+  useLocation,
+  Outlet,
+  LoaderFunctionArgs,
+} from "react-router-dom";
 import { LoginPage } from "@/features/auth/pages/LoginPage";
-import { PetsPage } from "@/features/pets/pages/PetsPage";
+import { SearchPage } from "@/features/pets/pages/SearchPage";
 import { AuthLayout } from "@/components/layout/AuthLayout";
 import { MainLayout } from "@/components/layout/MainLayout";
 import { NotFoundPage } from "@/components/pages/NotFoundPage";
 import { useAuthStore } from "@/stores/auth";
 import { FavoritesPage } from "@/features/pets/pages/FavoritesPage";
+import { ROUTES } from "@/config/routes";
+
+const VALID_PET_TYPES = ["dogs"] as const;
+type PetType = (typeof VALID_PET_TYPES)[number];
+
+function isPetType(type: string): type is PetType {
+  return VALID_PET_TYPES.includes(type as PetType);
+}
 
 function ProtectedLayout() {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
@@ -35,15 +48,22 @@ export const routes = [
         children: [
           {
             path: "/",
-            element: <Navigate to="/dogs" replace />,
+            element: <Navigate to={ROUTES.HOME} replace />,
+          },
+          {
+            path: "search/:type",
+            element: <SearchPage />,
+            errorElement: <NotFoundPage />,
+            loader: ({ params }: LoaderFunctionArgs) => {
+              if (!params.type || !isPetType(params.type)) {
+                throw new Error("Invalid pet type");
+              }
+              return null;
+            },
           },
           {
             path: "favorites",
             element: <FavoritesPage />,
-          },
-          {
-            path: "dogs",
-            element: <PetsPage />,
           },
           {
             path: "*",

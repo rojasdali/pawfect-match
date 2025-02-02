@@ -1,12 +1,15 @@
 import { useState } from "react";
 import { petsApi } from "../api/pets";
 import { useFavoritesStore } from "@/stores/favorites";
-import { Pet } from "../types";
+import { useAuthStore } from "@/stores/auth";
 import { PageResult } from "../types";
 
 export function useFavoritesQuery() {
   const [isLoading, setIsLoading] = useState(true);
-  const favorites = useFavoritesStore((state) => state.favorites);
+  const userEmail = useAuthStore((state) => state.user?.email?.toLowerCase());
+  const favorites = useFavoritesStore((state) =>
+    userEmail ? state.favorites[userEmail] || [] : []
+  );
 
   const fetchFavorites = async ({
     pageParam = 0,
@@ -33,12 +36,10 @@ export function useFavoritesQuery() {
               : pageParam) + 1
           : undefined;
 
-      const result: PageResult = {
+      return {
         pets,
         nextCursor: nextCursor?.toString() || undefined,
       };
-
-      return result;
     } finally {
       setIsLoading(false);
     }

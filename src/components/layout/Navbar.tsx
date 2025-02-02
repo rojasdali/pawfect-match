@@ -18,6 +18,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { ROUTES } from "@/config/routes";
 
 export function Navbar() {
   const user = useAuthStore((state) => state.user);
@@ -31,7 +32,7 @@ export function Navbar() {
     <nav className="sticky top-0 z-50 border-b border-border/40 bg-white/80 dark:bg-slate-950/80 backdrop-blur supports-[backdrop-filter]:bg-white/80 dark:supports-[backdrop-filter]:bg-slate-950/80">
       <div className="container flex h-14 items-center">
         <button
-          onClick={() => navigate("/dogs")}
+          onClick={() => navigate(ROUTES.HOME)}
           className="flex gap-2 items-center mr-4 hover:opacity-80 transition-opacity"
         >
           <PawPrint className="h-6 w-6 text-[#818CF8]" />

@@ -10,6 +10,7 @@ import {
 import { petsApi } from "../api/pets";
 import { useParams } from "react-router-dom";
 import { useBreakpoint } from "@/hooks/useBreakpoint";
+import { usePetSearch } from "../hooks/usePetSearch";
 
 const GRID_COLS = {
   base: 1,
@@ -18,7 +19,7 @@ const GRID_COLS = {
   xl: 4,
 } as const;
 
-export function PetsPage() {
+export function SearchPage() {
   const { type = "dogs" } = useParams<{ type?: string }>();
   const queryClient = useQueryClient();
   const loadMoreRef = useRef<HTMLDivElement>(null);
@@ -33,34 +34,16 @@ export function PetsPage() {
       ? GRID_COLS.md
       : GRID_COLS.base;
 
-  const {
-    data,
-    fetchNextPage,
-    hasNextPage,
-    isFetchingNextPage,
-    isLoading,
-    error,
-  } = useInfiniteQuery({
-    queryKey: [type],
-    queryFn: async ({ pageParam = "0" }) => {
-      const searchResult = await petsApi.searchPets({ type, pageParam });
+  const { fetchPets, isLoading, getNextPageParam, initialPageParam } =
+    usePetSearch();
 
-      const nextUrl = searchResult.next;
-      const nextCursor = nextUrl
-        ? new URLSearchParams(nextUrl.split("?")[1]).get("from")
-        : undefined;
-
-      const pets = await petsApi.getPetsByIds(type, searchResult.resultIds);
-      return {
-        pets,
-        nextCursor,
-      };
-    },
-    initialPageParam: "0",
-    getNextPageParam: (lastPage) => {
-      return lastPage.nextCursor;
-    },
-  });
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, error } =
+    useInfiniteQuery({
+      queryKey: [type],
+      queryFn: fetchPets,
+      initialPageParam: initialPageParam,
+      getNextPageParam: getNextPageParam,
+    });
 
   const allPets = data?.pages.flatMap((page) => page.pets) ?? [];
   const remainingCols = allPets.length % currentCols;

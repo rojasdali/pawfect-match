@@ -12,7 +12,13 @@ export const useAuthStore = create<AuthState>()(
           console.error("Invalid user data:", user);
           return;
         }
-        set({ user, isAuthenticated: true });
+        set({
+          user: {
+            ...user,
+            email: user.email.toLowerCase(),
+          },
+          isAuthenticated: true,
+        });
       },
       logout: () => set({ user: null, isAuthenticated: false }),
     }),
