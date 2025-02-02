@@ -1,15 +1,11 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
-
-interface User {
-  name: string;
-  email: string;
-}
+import { User } from "@/features/auth/types";
 
 interface AuthState {
   user: User | null;
   isAuthenticated: boolean;
-  setUser: (user: User | null) => void;
+  setUser: (user: User) => void;
   logout: () => void;
 }
 
@@ -18,11 +14,8 @@ export const useAuthStore = create<AuthState>()(
     (set) => ({
       user: null,
       isAuthenticated: false,
-      setUser: (user) => set({ user, isAuthenticated: !!user }),
-      logout: () => {
-        set({ user: null, isAuthenticated: false });
-        localStorage.removeItem("auth-storage");
-      },
+      setUser: (user) => set({ user, isAuthenticated: true }),
+      logout: () => set({ user: null, isAuthenticated: false }),
     }),
     {
       name: "auth-storage",

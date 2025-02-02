@@ -11,3 +11,8 @@ export interface PetCardProps extends Pet {
   isFavorite?: boolean;
   onFavorite?: () => void;
 }
+
+export interface PageResult {
+  pets: Pet[];
+  nextCursor: string | undefined;
+}

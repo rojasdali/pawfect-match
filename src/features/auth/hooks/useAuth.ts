@@ -1,42 +1,36 @@
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { authApi } from "../api/auth";
 import { useAuthStore } from "@/stores/auth";
 
-interface LoginData {
-  name: string;
-  email: string;
-}
-
 export function useAuth() {
+  const queryClient = useQueryClient();
   const navigate = useNavigate();
-  const setUser = useAuthStore((state) => state.setUser);
-  const logout = useAuthStore((state) => state.logout);
+  const { setUser, logout: clearUser } = useAuthStore();
 
-  const loginMutation = useMutation<void, Error, LoginData>({
+  const loginMutation = useMutation({
     mutationFn: authApi.login,
-    onSuccess: (_, variables) => {
-      setUser(variables);
+    onSuccess: (user) => {
+      setUser(user);
       navigate("/dogs");
     },
-    onError: (error: Error) => {
-      console.error("Login error:", error.message);
+    onError: (error) => {
+      console.error("Login failed:", error);
     },
   });
 
-  const logoutMutation = useMutation<void, Error, void>({
-    mutationFn: async () => {
-      try {
-        await authApi.logout();
-      } finally {
-        logout();
-        navigate("/", { replace: true });
-      }
+  const logoutMutation = useMutation({
+    mutationFn: authApi.logout,
+    onSuccess: () => {
+      clearUser();
+      queryClient.clear();
+      navigate("/login");
     },
-    onError: (error: Error) => {
-      console.error("Logout error:", error.message);
-      logout();
-      navigate("/", { replace: true });
+    onError: (error) => {
+      console.error("Logout failed:", error);
+      clearUser();
+      queryClient.clear();
+      navigate("/login");
     },
   });
 
@@ -44,6 +38,5 @@ export function useAuth() {
     login: loginMutation.mutate,
     logout: logoutMutation.mutate,
     isLoading: loginMutation.isPending || logoutMutation.isPending,
-    error: loginMutation.error,
   };
 }

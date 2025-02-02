@@ -96,6 +96,14 @@ export function PetsPage() {
     return () => observer.disconnect();
   }, [fetchNextPage, hasNextPage, isFetchingNextPage, allPets]);
 
+  const hasPets = allPets.length > 0;
+
+  const getTitle = () => {
+    if (isLoading) return `Loading ${type}...`;
+    if (hasPets) return `Available ${type}`;
+    return `Woof! No ${type} found`;
+  };
+
   if (error) {
     return (
       <div className="min-h-screen bg-background text-foreground">
@@ -109,9 +117,7 @@ export function PetsPage() {
   return (
     <div className="min-h-screen bg-background text-foreground">
       <main className="container py-6">
-        <h1 className="text-2xl font-bold mb-6 capitalize">
-          {isLoading ? `Loading ${type}...` : `Available ${type}`}
-        </h1>
+        <h1 className="text-2xl font-bold mb-6 capitalize">{getTitle()}</h1>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {isLoading ? (
             <>
@@ -119,6 +125,10 @@ export function PetsPage() {
                 <PetCardSkeleton key={i} />
               ))}
             </>
+          ) : !hasPets ? (
+            <p className="text-muted-foreground text-center col-span-full">
+              Try checking back later for more adorable pups!
+            </p>
           ) : (
             <>
               {allPets.map((pet) => (
