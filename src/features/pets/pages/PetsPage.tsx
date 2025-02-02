@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "react";
 import { PetCard } from "../components/PetCard";
 import { PetCardSkeleton } from "../components/PetCardSkeleton";
-import { Navbar } from "@/components/layout/Navbar";
+
 import {
   useInfiniteQuery,
   useMutation,
@@ -99,7 +99,6 @@ export function PetsPage() {
   if (error) {
     return (
       <div className="min-h-screen bg-background text-foreground">
-        <Navbar />
         <main className="container py-6">
           <p className="text-red-500">Error loading pets: {error.message}</p>
         </main>
@@ -109,7 +108,6 @@ export function PetsPage() {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <Navbar />
       <main className="container py-6">
         <h1 className="text-2xl font-bold mb-6 capitalize">
           {isLoading ? `Loading ${type}...` : `Available ${type}`}

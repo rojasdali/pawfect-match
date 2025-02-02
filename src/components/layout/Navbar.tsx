@@ -56,7 +56,7 @@ export function Navbar() {
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-48">
                 <DropdownMenuItem
-                  className="flex items-center gap-2 text-red-600 dark:text-red-400"
+                  className="flex items-center gap-2 text-red-600 dark:text-red-400 cursor-pointer"
                   onClick={() => logout()}
                 >
                   <LogOut className="h-4 w-4" />
