@@ -6,25 +6,15 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Heart } from "lucide-react";
-
-// Rename from DogCard to PetCard and update props
-interface PetCardProps {
-  name: string;
-  breed: string;
-  age: number;
-  img: string;
-  type: "dog" | "cat" | "other"; // Add type for future pet types
-  isFavorite?: boolean;
-  onFavorite?: () => void;
-}
+import { Heart, MapPin } from "lucide-react";
+import { PetCardProps } from "../types";
 
 export function PetCard({
   name,
   breed,
   age,
   img,
-  type,
+  zip_code,
   isFavorite,
   onFavorite,
 }: PetCardProps) {
@@ -55,13 +45,17 @@ export function PetCard({
           {name}
         </CardTitle>
         <CardDescription className="text-muted-foreground">
-          {type.charAt(0).toUpperCase() + type.slice(1)} • {breed}
+          {breed}
         </CardDescription>
       </CardHeader>
-      <CardContent>
+      <CardContent className="space-y-2">
         <p className="text-sm text-muted-foreground">
           {age} {age === 1 ? "year" : "years"} old
         </p>
+        <div className="flex items-center gap-1 text-sm text-muted-foreground">
+          <MapPin className="h-4 w-4" />
+          <span>{zip_code}</span>
+        </div>
       </CardContent>
     </Card>
   );

@@ -18,7 +18,7 @@ export function Navbar() {
   const navigate = useNavigate();
 
   return (
-    <nav className="border-b border-border/40 bg-[#94A3B8] dark:bg-[#0B1120] backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <nav className="sticky top-0 z-50 border-b border-border/40 bg-[#94A3B8] dark:bg-[#0B1120] backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-14 items-center">
         <button
           onClick={() => navigate("/dogs")}
