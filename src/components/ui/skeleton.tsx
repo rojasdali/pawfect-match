@@ -1,23 +1,26 @@
 import { cn } from "@/lib/utils";
+import React from "react";
 
-interface SkeletonProps extends React.HTMLAttributes<HTMLDivElement> {}
-
-function Skeleton({ className, ...props }: SkeletonProps) {
-  return (
-    <div
-      className={cn(
-        "animate-pulse rounded-md bg-muted/60",
-        "relative overflow-hidden",
-        "after:absolute after:inset-0",
-        "after:translate-x-[-100%]",
-        "after:animate-[shimmer_1.5s_infinite]",
-        "after:bg-gradient-to-r",
-        "after:from-transparent after:via-muted-foreground/10 after:to-transparent",
-        className
-      )}
-      {...props}
-    />
-  );
-}
+const Skeleton = React.forwardRef<
+  HTMLDivElement,
+  React.HTMLAttributes<HTMLDivElement>
+>(({ className, ...props }, ref) => (
+  <div
+    ref={ref}
+    className={cn(
+      "animate-pulse rounded-md",
+      "bg-muted/80 dark:bg-muted/40",
+      "before:absolute before:inset-0",
+      "before:-translate-x-full",
+      "before:animate-[shimmer_2s_infinite]",
+      "before:bg-gradient-to-r",
+      "before:from-transparent before:via-muted-foreground/40 before:to-transparent",
+      "dark:before:via-muted-foreground/30",
+      "relative overflow-hidden",
+      className
+    )}
+    {...props}
+  />
+));
 
 export { Skeleton };

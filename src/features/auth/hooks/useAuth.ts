@@ -12,6 +12,7 @@ export function useAuth() {
     mutationFn: authApi.login,
     onSuccess: (user) => {
       setUser(user);
+      queryClient.clear();
       navigate("/search/dogs?sort=breed:asc");
     },
     onError: (error) => {
