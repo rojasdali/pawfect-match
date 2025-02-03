@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { SearchInput } from "./SearchInput";
 import { SortDropdown } from "./SortDropdown";
 import { FilterSheet } from "../FilterSheet";
@@ -10,6 +10,7 @@ import { type Filters } from "../../schemas/filters";
 import { type QuickFilterType } from "../../types";
 
 interface MobileSearchHeaderProps {
+  type: string;
   searchParams: URLSearchParams;
   onSortChange: (value: string) => void;
   onQuickFilter: (type: QuickFilterType) => void;
@@ -18,10 +19,12 @@ interface MobileSearchHeaderProps {
     isOpen: boolean;
     onOpenChange: (open: boolean) => void;
     onApplyFilters: (values: Filters) => void;
+    onSheetOpen?: () => void;
   };
 }
 
 export function MobileSearchHeader({
+  type,
   searchParams,
   onSortChange,
   onQuickFilter,
@@ -29,6 +32,11 @@ export function MobileSearchHeader({
   filterSheetProps,
 }: MobileSearchHeaderProps) {
   const [isFiltersExpanded, setIsFiltersExpanded] = useState(false);
+  const [isFilterSheetOpen, setIsFilterSheetOpen] = useState(false);
+
+  useEffect(() => {
+    setIsFiltersExpanded(false);
+  }, []);
 
   return (
     <div className="container flex flex-col gap-3 py-3 lg:hidden">
@@ -40,15 +48,18 @@ export function MobileSearchHeader({
         />
         <FilterSheet
           {...filterSheetProps}
-          type="dogs"
-          breeds={[]}
-          isLoadingBreeds={false}
+          type={type}
+          breeds={filterSheetProps.breeds ?? []}
+          isLoadingBreeds={filterSheetProps.isLoadingBreeds}
           defaultValues={{
-            breed: "all",
-            minAge: "",
-            maxAge: "",
+            breed: searchParams.get("breed") ?? "all",
+            minAge: searchParams.get("ageMin") ?? "",
+            maxAge: searchParams.get("ageMax") ?? "",
           }}
           onResetFilters={() => onRemoveFilter(["breed", "ageMin", "ageMax"])}
+          isOpen={isFilterSheetOpen}
+          onOpenChange={setIsFilterSheetOpen}
+          onSheetOpen={filterSheetProps.onSheetOpen}
         />
         <Button
           variant="outline"
@@ -64,15 +75,16 @@ export function MobileSearchHeader({
       </div>
 
       {isFiltersExpanded && (
-        <>
+        <div className="flex flex-col gap-2">
           <div className="flex justify-start">
             <QuickFilters onQuickFilter={onQuickFilter} showTooltips={false} />
           </div>
           <FilterPills
             searchParams={searchParams}
             onRemoveFilter={onRemoveFilter}
+            className="flex-wrap gap-1"
           />
-        </>
+        </div>
       )}
     </div>
   );

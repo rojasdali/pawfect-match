@@ -9,7 +9,6 @@ import {
   SheetDescription,
   SheetPortal,
   SheetOverlay,
-  SheetClose,
 } from "@/components/ui/sheet";
 import {
   Form,
@@ -19,28 +18,30 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+
 import { Input } from "@/components/ui/input";
 import { SlidersHorizontal } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { filterSchema, type Filters } from "../schemas/filters";
+import { cn } from "@/lib/utils";
+import { Check } from "lucide-react";
+import { useState, useMemo, useEffect } from "react";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { useSearchParams } from "react-router-dom";
 
 interface FilterSheetProps {
   type: string;
   breeds: string[];
   isLoadingBreeds: boolean;
-  defaultValues: Filters;
+  onApplyFilters: (values: Filters) => void;
+  onSheetOpen?: () => void;
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
-  onApplyFilters: (values: Filters) => void;
-  onResetFilters: () => void;
 }
 
 export function FilterSheet({
@@ -48,21 +49,57 @@ export function FilterSheet({
   isOpen,
   onOpenChange,
   onApplyFilters,
-  defaultValues,
   breeds = [],
   isLoadingBreeds,
+  onSheetOpen,
 }: FilterSheetProps) {
+  const [searchParams] = useSearchParams();
+  const [inputValue, setInputValue] = useState("");
+  const [popoverOpen, setPopoverOpen] = useState(false);
+
   const form = useForm<Filters>({
     resolver: zodResolver(filterSchema),
-    defaultValues,
+    defaultValues: {
+      minAge: searchParams.get("ageMin") ?? "",
+      maxAge: searchParams.get("ageMax") ?? "",
+      breed: searchParams.get("breed") ?? "all",
+    },
   });
+
+  // Reset form when sheet closes
+  useEffect(() => {
+    if (!isOpen) {
+      form.reset({
+        minAge: searchParams.get("ageMin") ?? "",
+        maxAge: searchParams.get("ageMax") ?? "",
+        breed: searchParams.get("breed") ?? "all",
+      });
+      setInputValue("");
+    }
+  }, [isOpen, searchParams, form]);
+
+  const filteredBreeds = useMemo(() => {
+    if (!inputValue) return breeds;
+    return breeds.filter((breed) =>
+      breed.toLowerCase().includes(inputValue.toLowerCase())
+    );
+  }, [breeds, inputValue]);
 
   const handleSubmit = (values: Filters) => {
     onApplyFilters(values);
+    onOpenChange(false);
   };
 
   return (
-    <Sheet open={isOpen} onOpenChange={onOpenChange}>
+    <Sheet
+      open={isOpen}
+      onOpenChange={(open) => {
+        if (open && onSheetOpen) {
+          onSheetOpen();
+        }
+        onOpenChange(open);
+      }}
+    >
       <SheetTrigger asChild>
         <Button
           variant="outline"
@@ -140,23 +177,93 @@ export function FilterSheet({
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Breed</FormLabel>
-                    <Select
-                      disabled={isLoadingBreeds}
-                      value={field.value}
-                      onValueChange={field.onChange}
+                    <Popover
+                      open={popoverOpen}
+                      onOpenChange={setPopoverOpen}
+                      modal={true}
                     >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select breed" />
-                      </SelectTrigger>
-                      <SelectContent className="max-h-[300px]">
-                        <SelectItem value="all">All Breeds</SelectItem>
-                        {breeds.map((breed) => (
-                          <SelectItem key={breed} value={breed}>
-                            {breed}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="outline"
+                          role="combobox"
+                          className="w-full justify-between"
+                        >
+                          {field.value === "all" ? "All Breeds" : field.value}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent
+                        className="p-0 w-[--trigger-width]"
+                        style={
+                          {
+                            "--trigger-width":
+                              "var(--radix-popover-trigger-width)",
+                          } as React.CSSProperties
+                        }
+                        align="start"
+                      >
+                        <div className="p-2 border-b">
+                          <Input
+                            placeholder="Search breeds..."
+                            value={inputValue}
+                            onChange={(e) => setInputValue(e.target.value)}
+                            disabled={isLoadingBreeds}
+                          />
+                        </div>
+                        <div
+                          className="overflow-y-auto touch-auto"
+                          style={{
+                            maxHeight: "calc(100vh - 200px)",
+                            WebkitOverflowScrolling: "touch",
+                          }}
+                        >
+                          <div className="p-2 space-y-1">
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              className="w-full justify-start"
+                              onClick={() => {
+                                field.onChange("all");
+                                setPopoverOpen(false);
+                                setInputValue("");
+                              }}
+                            >
+                              <Check
+                                className={cn(
+                                  "mr-2 h-4 w-4",
+                                  field.value === "all"
+                                    ? "opacity-100"
+                                    : "opacity-0"
+                                )}
+                              />
+                              All Breeds
+                            </Button>
+                            {filteredBreeds.map((breed) => (
+                              <Button
+                                key={breed}
+                                type="button"
+                                variant="ghost"
+                                className="w-full justify-start"
+                                onClick={() => {
+                                  field.onChange(breed);
+                                  setPopoverOpen(false);
+                                  setInputValue("");
+                                }}
+                              >
+                                <Check
+                                  className={cn(
+                                    "mr-2 h-4 w-4",
+                                    field.value === breed
+                                      ? "opacity-100"
+                                      : "opacity-0"
+                                  )}
+                                />
+                                {breed}
+                              </Button>
+                            ))}
+                          </div>
+                        </div>
+                      </PopoverContent>
+                    </Popover>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -177,11 +284,14 @@ export function FilterSheet({
                 >
                   Reset Filters
                 </Button>
-                <SheetClose asChild>
-                  <Button type="submit" variant="default" className="w-full">
-                    Apply Filters
-                  </Button>
-                </SheetClose>
+                <Button
+                  type="submit"
+                  variant="default"
+                  className="w-full"
+                  onClick={form.handleSubmit(handleSubmit)}
+                >
+                  Apply Filters
+                </Button>
               </SheetFooter>
             </form>
           </Form>

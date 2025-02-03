@@ -1,18 +1,21 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { X } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface FilterPillsProps {
   searchParams: URLSearchParams;
   onRemoveFilter: (key: string | string[]) => void;
+  className?: string;
 }
 
 export function FilterPills({
   searchParams,
   onRemoveFilter,
+  className,
 }: FilterPillsProps) {
   return (
-    <div className="flex flex-wrap gap-2">
+    <div className={cn("flex items-center gap-2", className)}>
       {searchParams.get("breed") && (
         <Badge variant="secondary" className="gap-1">
           {searchParams.get("breed")}

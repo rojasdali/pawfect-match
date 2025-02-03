@@ -7,13 +7,12 @@ interface SearchInputProps {
 
 export function SearchInput({ onChange }: SearchInputProps) {
   return (
-    <div className="relative flex-1">
-      <div className="absolute inset-y-0 left-2 flex items-center">
-        <Search className="h-4 w-4 text-foreground dark:text-white" />
-      </div>
+    <div className="relative flex-1 max-w-[380px] lg:max-w-none">
+      <Search className="absolute left-2 top-1/2 h-4 w-4 -translate-y-1/2 transform text-muted-foreground" />
       <Input
-        placeholder="Search breeds..."
-        className="pl-8 border-input placeholder:text-foreground dark:placeholder:text-white"
+        type="search"
+        placeholder="Search..."
+        className="pl-8"
         onChange={onChange}
       />
     </div>

@@ -1,6 +1,6 @@
 import { useSearchParams } from "react-router-dom";
 import { useBreeds } from "../hooks/useBreeds";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { type Filters } from "../schemas/filters";
 import { MobileSearchHeader } from "@/features/pets/components/search/MobileSearchHeader";
 import { DesktopSearchHeader } from "@/features/pets/components/search/DesktopSearchHeader";
@@ -8,14 +8,13 @@ import { type QuickFilterType } from "../types";
 
 export function SearchHeader() {
   const [searchParams, setSearchParams] = useSearchParams();
-  const [isOpen, setIsOpen] = useState(false);
+  const type = searchParams.get("type") || "dogs";
+  const [shouldFetchBreeds, setShouldFetchBreeds] = useState(false);
 
-  const { data: breeds = [] } = useBreeds({
-    enabled: isOpen,
+  const { data: breeds, isLoading: isLoadingBreeds } = useBreeds({
+    enabled: shouldFetchBreeds,
     staleTime: Infinity,
     gcTime: 1000 * 60 * 30,
-    refetchOnMount: false,
-    refetchOnWindowFocus: false,
   });
 
   const handleSortChange = (value: string) => {
@@ -76,24 +75,36 @@ export function SearchHeader() {
     setSearchParams(newParams);
   };
 
-  const filterSheetProps = {
-    isOpen,
-    onOpenChange: setIsOpen,
-    onApplyFilters: handleFilterApply,
-    type: "dogs",
-    breeds,
-    isLoadingBreeds: false,
-    defaultValues: {
-      breed: searchParams.get("breed") || "all",
-      minAge: searchParams.get("ageMin") || "",
-      maxAge: searchParams.get("ageMax") || "",
-    },
-    onResetFilters: () => handleRemoveFilter(["breed", "ageMin", "ageMax"]),
-  };
+  const filterSheetProps = useMemo(
+    () => ({
+      type: "pets",
+      breeds: breeds ?? [],
+      isLoadingBreeds,
+      defaultValues: {
+        minAge: searchParams.get("minAge") ?? "",
+        maxAge: searchParams.get("maxAge") ?? "",
+        breed: searchParams.get("breed") ?? "all",
+      },
+      onApplyFilters: handleFilterApply,
+      onResetFilters: handleRemoveFilter,
+      onSheetOpen: () => {
+        console.log("Sheet opened, setting shouldFetchBreeds to true");
+        setShouldFetchBreeds(true);
+      },
+    }),
+    [
+      breeds,
+      isLoadingBreeds,
+      searchParams,
+      handleFilterApply,
+      handleRemoveFilter,
+    ]
+  );
 
   return (
     <div className="sticky top-14 z-40 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <MobileSearchHeader
+        type={type}
         searchParams={searchParams}
         onSortChange={handleSortChange}
         onQuickFilter={handleQuickFilter}
@@ -101,6 +112,7 @@ export function SearchHeader() {
         filterSheetProps={filterSheetProps}
       />
       <DesktopSearchHeader
+        type={type}
         searchParams={searchParams}
         onSortChange={handleSortChange}
         onQuickFilter={handleQuickFilter}
