@@ -1,16 +1,13 @@
 import { useEffect, useRef } from "react";
 import { PetCard } from "../components/PetCard";
 import { PetCardSkeleton } from "../components/PetCardSkeleton";
-
-import {
-  useInfiniteQuery,
-  useMutation,
-  useQueryClient,
-} from "@tanstack/react-query";
+import { SearchHeader } from "../components/SearchHeader";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { petsApi } from "../api/pets";
 import { useParams } from "react-router-dom";
 import { useBreakpoint } from "@/hooks/useBreakpoint";
 import { usePetSearch } from "../hooks/usePetSearch";
+import { PetGridSkeleton } from "../components/PetGridSkeleton";
 
 const GRID_COLS = {
   base: 1,
@@ -25,6 +22,15 @@ export function SearchPage() {
   const loadMoreRef = useRef<HTMLDivElement>(null);
   const breakpoint = useBreakpoint();
 
+  const {
+    allPets,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    isLoading: isLoadingPets,
+    error,
+  } = usePetSearch();
+
   const currentCols =
     breakpoint === "xl"
       ? GRID_COLS.xl
@@ -34,21 +40,8 @@ export function SearchPage() {
       ? GRID_COLS.md
       : GRID_COLS.base;
 
-  const { fetchPets, isLoading, getNextPageParam, initialPageParam } =
-    usePetSearch();
-
-  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, error } =
-    useInfiniteQuery({
-      queryKey: [type],
-      queryFn: fetchPets,
-      initialPageParam: initialPageParam,
-      getNextPageParam: getNextPageParam,
-    });
-
-  const allPets = data?.pages.flatMap((page) => page.pets) ?? [];
   const remainingCols = allPets.length % currentCols;
-  const skeletonsInLastRow =
-    remainingCols === 0 ? 0 : currentCols - remainingCols;
+  const fillCols = remainingCols === 0 ? 0 : currentCols - remainingCols;
 
   const favoriteMutation = useMutation({
     mutationFn: (id: string) => petsApi.toggleFavorite(type, id),
@@ -82,10 +75,24 @@ export function SearchPage() {
   const hasPets = allPets.length > 0;
 
   const getTitle = () => {
-    if (isLoading) return `Loading ${type}...`;
+    if (isLoadingPets) return `Loading ${type}...`;
     if (hasPets) return `Available ${type}`;
     return `Woof! No ${type} found`;
   };
+
+  if (!breakpoint || (isLoadingPets && !allPets.length)) {
+    return (
+      <div className="min-h-screen bg-background text-foreground">
+        <SearchHeader />
+        <main className="container py-6">
+          <h1 className="text-2xl font-bold mb-6 capitalize">
+            Loading {type}...
+          </h1>
+          <PetGridSkeleton columns={GRID_COLS.xl} rows={2} />
+        </main>
+      </div>
+    );
+  }
 
   if (error) {
     return (
@@ -99,16 +106,11 @@ export function SearchPage() {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
+      <SearchHeader />
       <main className="container py-6">
         <h1 className="text-2xl font-bold mb-6 capitalize">{getTitle()}</h1>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {isLoading ? (
-            <>
-              {Array.from({ length: currentCols * 2 }).map((_, i) => (
-                <PetCardSkeleton key={i} />
-              ))}
-            </>
-          ) : !hasPets ? (
+          {!hasPets ? (
             <p className="text-muted-foreground text-center col-span-full">
               Try checking back later for more adorable pups!
             </p>
@@ -123,25 +125,22 @@ export function SearchPage() {
                 />
               ))}
 
-              {(hasNextPage || isFetchingNextPage) &&
-                skeletonsInLastRow > 0 &&
-                Array.from({ length: skeletonsInLastRow }).map((_, i) => (
-                  <PetCardSkeleton key={`fill-${i}`} />
-                ))}
+              {isFetchingNextPage && (
+                <>
+                  {fillCols > 0 &&
+                    Array.from({ length: fillCols }).map((_, i) => (
+                      <PetCardSkeleton key={`fill-${i}`} />
+                    ))}
+                  {Array.from({ length: currentCols }).map((_, i) => (
+                    <PetCardSkeleton key={`next-${i}`} />
+                  ))}
+                </>
+              )}
             </>
           )}
         </div>
 
-        {!isLoading && hasNextPage && (
-          <>
-            <div ref={loadMoreRef} className="h-20 mt-6" />
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {Array.from({ length: currentCols }).map((_, i) => (
-                <PetCardSkeleton key={`next-${i}`} />
-              ))}
-            </div>
-          </>
-        )}
+        {hasNextPage && <div ref={loadMoreRef} className="h-20 mt-6" />}
       </main>
     </div>
   );

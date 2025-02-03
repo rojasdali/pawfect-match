@@ -5,8 +5,12 @@ import { Button } from "@/components/ui/button";
 import { Trash2 } from "lucide-react";
 
 export function FavoritesPage() {
-  const { fetchFavorites, isLoading, getNextPageParam, initialPageParam } =
-    useFavoritesQuery();
+  const {
+    fetchFavorites,
+    isLoading: isLoadingFavorites,
+    getNextPageParam,
+    initialPageParam,
+  } = useFavoritesQuery();
   const hasFavorites = useFavoritesStore(
     (state) => state.getFavoriteCount() > 0
   );
@@ -17,7 +21,7 @@ export function FavoritesPage() {
       <main className="container py-6">
         <div className="flex items-center justify-between mb-6">
           <h1 className="text-2xl font-bold">
-            {hasFavorites && isLoading
+            {hasFavorites && isLoadingFavorites
               ? "Loading favorites..."
               : "Your Favorite Pets"}
           </h1>

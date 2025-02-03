@@ -73,9 +73,9 @@ export function Navbar() {
               <DropdownMenuTrigger asChild>
                 <Button
                   variant="ghost"
-                  className="flex items-center gap-2 px-3 hover:bg-white/10"
+                  className="flex items-center gap-2 px-3 hover:bg-accent dark:hover:bg-gray-700/50"
                 >
-                  <User className="h-5 w-5 text-muted-foreground" />
+                  <User className="h-5 w-5 text-muted-foreground dark:text-gray-100" />
                   <span className="capitalize text-sm">{user.name}</span>
                 </Button>
               </DropdownMenuTrigger>

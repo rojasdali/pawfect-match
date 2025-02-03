@@ -6,17 +6,29 @@ export const PetCardSkeleton = forwardRef<HTMLDivElement>((_, ref) => {
   return (
     <Card
       ref={ref}
-      className="group shadow-sm hover:shadow-md dark:shadow-none bg-[#F1F5F9] dark:bg-card p-3"
+      className="group overflow-hidden shadow-sm hover:shadow-md dark:shadow-none bg-card"
     >
-      <div className="aspect-square relative overflow-hidden rounded-md bg-muted">
+      {/* Image skeleton with shimmer */}
+      <div className="aspect-square relative overflow-hidden rounded-t-md">
         <Skeleton className="h-full w-full" />
       </div>
-      <CardHeader>
-        <Skeleton className="h-6 w-24" />
-        <Skeleton className="h-4 w-32" />
+
+      {/* Content skeletons */}
+      <CardHeader className="space-y-3">
+        {/* Name */}
+        <Skeleton className="h-6 w-[120px]" />
+        {/* Breed */}
+        <Skeleton className="h-4 w-[180px]" />
       </CardHeader>
-      <CardContent>
-        <Skeleton className="h-4 w-20" />
+
+      <CardContent className="space-y-3">
+        {/* Age */}
+        <Skeleton className="h-4 w-[100px]" />
+        {/* Location */}
+        <div className="flex items-center gap-2">
+          <Skeleton className="h-4 w-4 rounded-full" /> {/* Icon */}
+          <Skeleton className="h-4 w-[80px]" /> {/* ZIP code */}
+        </div>
       </CardContent>
     </Card>
   );

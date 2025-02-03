@@ -1,6 +1,5 @@
 import { useEffect, useRef } from "react";
 import { useBreakpoint } from "@/hooks/useBreakpoint";
-import { Pet } from "../types";
 import { PetCard } from "./PetCard";
 import { PetCardSkeleton } from "./PetCardSkeleton";
 import { useInfiniteQuery } from "@tanstack/react-query";
@@ -36,7 +35,7 @@ export function PetGrid({
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
-    isLoading,
+    isLoading: isLoadingPets,
     error,
   } = useInfiniteQuery({
     queryKey,
@@ -87,14 +86,14 @@ export function PetGrid({
     return <p className="text-red-500">Error loading pets: {error.message}</p>;
   }
 
-  if (!isLoading && allPets.length === 0) {
+  if (!isLoadingPets && allPets.length === 0) {
     return <p className="text-muted-foreground text-center">No pets found.</p>;
   }
 
   return (
     <>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        {isLoading ? (
+        {isLoadingPets ? (
           Array.from({ length: currentCols * 2 }).map((_, i) => (
             <PetCardSkeleton key={i} />
           ))
@@ -112,7 +111,7 @@ export function PetGrid({
         )}
       </div>
 
-      {!isLoading && hasNextPage && (
+      {!isLoadingPets && hasNextPage && (
         <>
           <div ref={loadMoreRef} className="h-20 mt-6" />
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">

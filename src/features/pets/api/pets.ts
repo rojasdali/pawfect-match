@@ -4,8 +4,9 @@ import { Pet } from "../types";
 interface SearchParams {
   type: string;
   pageParam?: number | string;
-  breed?: string;
-  age?: number;
+  breeds?: string[];
+  ageMin?: number;
+  ageMax?: number;
   zipCode?: string;
   sort?: string;
 }
@@ -53,5 +54,10 @@ export const petsApi = {
 
   toggleFavorite: async (type: string, id: string): Promise<void> => {
     await apiClient.post(`/${type}/${id}/favorite`);
+  },
+
+  getBreeds: async (): Promise<string[]> => {
+    const { data } = await apiClient.get<string[]>("/dogs/breeds");
+    return data;
   },
 };

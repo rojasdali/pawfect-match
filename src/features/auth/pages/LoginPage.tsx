@@ -22,7 +22,7 @@ const loginSchema = z.object({
 type LoginForm = z.infer<typeof loginSchema>;
 
 export function LoginPage() {
-  const { login, isLoading } = useAuth();
+  const { login, isLoading: isLoadingAuth } = useAuth();
 
   const form = useForm<LoginForm>({
     resolver: zodResolver(loginSchema),
@@ -45,7 +45,7 @@ export function LoginPage() {
             <h1 className="text-2xl font-bold text-[#818CF8]">Pawfect Match</h1>
           </div>
           <p className="text-gray-600 dark:text-gray-400">
-            Find your perfect furry friend! Tell us a bit about yourself to get
+            Find your pawfect furry friend! Tell us a bit about yourself to get
             started.
           </p>
         </div>
@@ -95,10 +95,10 @@ export function LoginPage() {
 
             <Button
               type="submit"
-              disabled={isLoading}
+              disabled={isLoadingAuth}
               className="w-full bg-[#818CF8] hover:bg-[#818CF8]/90 text-white"
             >
-              {isLoading ? "Signing in..." : "Sign in"}
+              {isLoadingAuth ? "Signing in..." : "Sign in"}
             </Button>
           </form>
         </Form>

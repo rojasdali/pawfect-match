@@ -60,12 +60,16 @@ export function PetCard({ id, name, breed, age, img, zip_code }: PetCardProps) {
         </Button>
       </div>
       <CardHeader>
-        <CardTitle className="text-lg">{name}</CardTitle>
-        <CardDescription>{breed}</CardDescription>
+        <CardTitle className="text-lg dark:text-white">{name}</CardTitle>
+        <CardDescription className="dark:text-gray-200">
+          {breed}
+        </CardDescription>
       </CardHeader>
       <CardContent className="space-y-2">
-        <p className="text-sm text-muted-foreground">{age} years old</p>
-        <div className="flex items-center gap-1 text-sm text-muted-foreground">
+        <p className="text-sm text-muted-foreground dark:text-gray-200">
+          {age} years old
+        </p>
+        <div className="flex items-center gap-1 text-sm text-muted-foreground dark:text-gray-200">
           <MapPin className="h-4 w-4" />
           <span>{zip_code}</span>
         </div>

@@ -4,31 +4,50 @@
 
 @layer base {
   :root {
+    /* Main brand color - our purple */
+    --primary: 231 84% 61%;
+    --primary-foreground: 0 0% 100%;
+
+    /* Background colors */
     --background: 220 23% 95%;
     --foreground: 222.2 84% 4.9%;
+
+    /* UI element colors */
+    --muted: 220 16% 96%; /* Lighter gray for subtle elements */
+    --muted-hover: 220 16% 92%; /* Slightly darker on hover */
+    --muted-foreground: 220 8.9% 46.1%;
+
+    --accent: 220 16% 92%;
+    --accent-hover: 220 16% 88%;
+    --accent-foreground: 222.2 47.4% 11.2%;
+
+    /* Card and popover */
     --card: 220 23% 95%;
     --card-foreground: 222.2 84% 4.9%;
     --popover: 220 23% 95%;
     --popover-foreground: 222.2 84% 4.9%;
-    --primary: 221.2 83.2% 53.3%;
-    --primary-foreground: 210 40% 98%;
-    --secondary: 220 16% 88%;
+
+    /* Secondary actions */
+    --secondary: 220 16% 92%;
+    --secondary-hover: 220 16% 88%;
     --secondary-foreground: 222.2 47.4% 11.2%;
-    --muted: 220 16% 88%;
-    --muted-foreground: 220 8.9% 46.1%;
-    --accent: 220 16% 88%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+
+    /* Destructive actions */
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
+
+    /* Borders and inputs */
     --border: 220 13% 91%;
     --input: 220 13% 91%;
-    --ring: 221.2 83.2% 53.3%;
+    --ring: var(--primary);
+
     --radius: 0.5rem;
     --chart-1: 12 76% 61%;
     --chart-2: 173 58% 39%;
     --chart-3: 197 37% 24%;
     --chart-4: 43 74% 66%;
     --chart-5: 27 87% 67%;
+    --purple: 231 84% 61%;
   }
 
   * {
@@ -40,18 +59,20 @@
   }
 
   .dark {
+    /* Update dark mode colors accordingly */
+    --primary: 231 84% 61%;
+    --primary-foreground: 0 0% 100%;
+
+    --muted: 217.2 32.6% 20.5%;
+    --muted-hover: 217.2 32.6% 24.5%;
     --background: 215 28% 17%;
     --foreground: 210 40% 98%;
     --card: 215 28% 20%;
     --card-foreground: 210 40% 98%;
     --popover: 215 28% 20%;
     --popover-foreground: 210 40% 98%;
-    --primary: 221.2 83.2% 53.3%;
-    --primary-foreground: 210 40% 98%;
     --secondary: 217.2 32.6% 17.5%;
     --secondary-foreground: 210 40% 98%;
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
     --accent: 217.2 32.6% 17.5%;
     --accent-foreground: 210 40% 98%;
     --destructive: 0 62.8% 30.6%;
@@ -64,6 +85,7 @@
     --chart-3: 30 80% 55%;
     --chart-4: 280 65% 60%;
     --chart-5: 340 75% 55%;
+    --purple: 231 84% 61%;
   }
 }
 
