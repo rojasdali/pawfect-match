@@ -16,9 +16,12 @@ interface MobileSearchHeaderProps {
   onQuickFilter: (type: QuickFilterType) => void;
   onRemoveFilter: (key: string | string[]) => void;
   filterSheetProps: {
-    isOpen: boolean;
-    onOpenChange: (open: boolean) => void;
+    type: string;
+    breeds: string[];
+    isLoadingBreeds: boolean;
+    defaultValues: Filters;
     onApplyFilters: (values: Filters) => void;
+    onResetFilters: (key: string | string[]) => void;
     onSheetOpen?: () => void;
   };
 }
@@ -51,12 +54,6 @@ export function MobileSearchHeader({
           type={type}
           breeds={filterSheetProps.breeds ?? []}
           isLoadingBreeds={filterSheetProps.isLoadingBreeds}
-          defaultValues={{
-            breed: searchParams.get("breed") ?? "all",
-            minAge: searchParams.get("ageMin") ?? "",
-            maxAge: searchParams.get("ageMax") ?? "",
-          }}
-          onResetFilters={() => onRemoveFilter(["breed", "ageMin", "ageMax"])}
           isOpen={isFilterSheetOpen}
           onOpenChange={setIsFilterSheetOpen}
           onSheetOpen={filterSheetProps.onSheetOpen}

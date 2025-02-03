@@ -270,28 +270,30 @@ export function FilterSheet({
               />
 
               <SheetFooter className="flex flex-col gap-2">
-                <Button
-                  type="button"
-                  variant="soft-reset"
-                  className="w-full"
-                  onClick={() => {
-                    form.reset({
-                      minAge: "",
-                      maxAge: "",
-                      breed: "all",
-                    });
-                  }}
-                >
-                  Reset Filters
-                </Button>
-                <Button
-                  type="submit"
-                  variant="default"
-                  className="w-full"
-                  onClick={form.handleSubmit(handleSubmit)}
-                >
-                  Apply Filters
-                </Button>
+                <div className="flex flex-col gap-2 lg:flex-row-reverse w-full">
+                  <Button
+                    type="submit"
+                    variant="default"
+                    className="w-full"
+                    onClick={form.handleSubmit(handleSubmit)}
+                  >
+                    Apply Filters
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="soft-reset"
+                    className="w-full"
+                    onClick={() => {
+                      form.reset({
+                        minAge: "",
+                        maxAge: "",
+                        breed: "all",
+                      });
+                    }}
+                  >
+                    Reset Filters
+                  </Button>
+                </div>
               </SheetFooter>
             </form>
           </Form>
