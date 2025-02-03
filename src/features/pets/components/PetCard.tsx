@@ -34,6 +34,7 @@ export function PetCard({ id, name, breed, age, img, zip_code }: PetCardProps) {
           src={img}
           alt={`${name} the ${breed}`}
           className="h-full w-full object-cover transition-transform group-hover:scale-105"
+          loading="lazy"
         />
         <Button
           variant="ghost"

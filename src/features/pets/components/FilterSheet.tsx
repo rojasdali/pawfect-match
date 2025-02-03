@@ -9,6 +9,7 @@ import {
   SheetDescription,
   SheetPortal,
   SheetOverlay,
+  SheetClose,
 } from "@/components/ui/sheet";
 import {
   Form,
@@ -56,6 +57,10 @@ export function FilterSheet({
     defaultValues,
   });
 
+  const handleSubmit = (values: Filters) => {
+    onApplyFilters(values);
+  };
+
   return (
     <Sheet open={isOpen} onOpenChange={onOpenChange}>
       <SheetTrigger asChild>
@@ -69,13 +74,8 @@ export function FilterSheet({
         </Button>
       </SheetTrigger>
       <SheetPortal>
-        <SheetOverlay className="data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0" />
-        <SheetContent
-          side="left"
-          className="w-full sm:max-w-md"
-          onOpenAutoFocus={(e) => e.preventDefault()}
-          onCloseAutoFocus={(e) => e.preventDefault()}
-        >
+        <SheetOverlay />
+        <SheetContent side="left" className="w-full sm:max-w-md">
           <SheetHeader>
             <SheetTitle>
               <span className="capitalize">Filter {type}</span>
@@ -86,7 +86,7 @@ export function FilterSheet({
           </SheetHeader>
           <Form {...form}>
             <form
-              onSubmit={form.handleSubmit(onApplyFilters)}
+              onSubmit={form.handleSubmit(handleSubmit)}
               className="mt-6 space-y-6"
             >
               <div className="space-y-4">
@@ -177,9 +177,11 @@ export function FilterSheet({
                 >
                   Reset Filters
                 </Button>
-                <Button type="submit" variant="default" className="w-full">
-                  Apply Filters
-                </Button>
+                <SheetClose asChild>
+                  <Button type="submit" variant="default" className="w-full">
+                    Apply Filters
+                  </Button>
+                </SheetClose>
               </SheetFooter>
             </form>
           </Form>

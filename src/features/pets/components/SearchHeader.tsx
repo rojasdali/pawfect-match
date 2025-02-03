@@ -11,6 +11,7 @@ export function SearchHeader() {
   const [isOpen, setIsOpen] = useState(false);
 
   const { data: breeds = [] } = useBreeds({
+    enabled: isOpen,
     staleTime: Infinity,
     gcTime: 1000 * 60 * 30,
     refetchOnMount: false,
@@ -44,7 +45,6 @@ export function SearchHeader() {
     }
 
     setSearchParams(newParams);
-    setIsOpen(false);
   };
 
   const handleQuickFilter = (type: QuickFilterType) => {
@@ -84,9 +84,9 @@ export function SearchHeader() {
     breeds,
     isLoadingBreeds: false,
     defaultValues: {
-      breed: "all",
-      minAge: "",
-      maxAge: "",
+      breed: searchParams.get("breed") || "all",
+      minAge: searchParams.get("ageMin") || "",
+      maxAge: searchParams.get("ageMax") || "",
     },
     onResetFilters: () => handleRemoveFilter(["breed", "ageMin", "ageMax"]),
   };
