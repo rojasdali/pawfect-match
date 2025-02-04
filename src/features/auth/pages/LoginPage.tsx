@@ -98,7 +98,7 @@ export function LoginPage() {
               disabled={isLoadingAuth}
               className="w-full bg-[#818CF8] hover:bg-[#818CF8]/90 text-white"
             >
-              {isLoadingAuth ? "Signing in..." : "Sign in"}
+              {isLoadingAuth ? "Signing in..." : "Start finding pets!"}
             </Button>
           </form>
         </Form>

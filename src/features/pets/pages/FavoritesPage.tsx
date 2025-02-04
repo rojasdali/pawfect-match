@@ -5,14 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Trash2 } from "lucide-react";
 
 export function FavoritesPage() {
-  const {
-    isLoading: isLoadingFavorites,
-    getNextPageParam,
-    initialPageParam,
-    queryKey,
-    queryFn,
-    enabled,
-  } = useFavoritesQuery();
+  const { pets, isLoading, hasNextPage, fetchNextPage, isFetchingNextPage } =
+    useFavoritesQuery();
   const hasFavorites = useFavoritesStore(
     (state) => state.getFavoriteCount() > 0
   );
@@ -23,7 +17,7 @@ export function FavoritesPage() {
       <main className="container py-6">
         <div className="flex items-center justify-between mb-6">
           <h1 className="text-2xl font-bold">
-            {hasFavorites && isLoadingFavorites
+            {hasFavorites && isLoading
               ? "Loading favorites..."
               : "Your Favorite Pets"}
           </h1>
@@ -46,11 +40,11 @@ export function FavoritesPage() {
           </p>
         ) : (
           <PetGrid
-            queryKey={queryKey}
-            queryFn={queryFn}
-            enabled={enabled}
-            getNextPageParam={getNextPageParam}
-            initialPageParam={initialPageParam}
+            pets={pets}
+            isLoading={isLoading}
+            hasNextPage={!!hasNextPage}
+            onLoadMore={() => fetchNextPage()}
+            isFetchingNextPage={isFetchingNextPage}
           />
         )}
       </main>

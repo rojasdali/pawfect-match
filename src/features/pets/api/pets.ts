@@ -52,10 +52,6 @@ export const petsApi = {
     return data;
   },
 
-  toggleFavorite: async (type: string, id: string): Promise<void> => {
-    await apiClient.post(`/${type}/${id}/favorite`);
-  },
-
   getBreeds: async (): Promise<string[]> => {
     const { data } = await apiClient.get<string[]>("/dogs/breeds");
     return data;
