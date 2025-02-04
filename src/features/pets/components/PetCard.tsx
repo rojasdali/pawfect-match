@@ -8,19 +8,15 @@ import {
 import { Button } from "@/components/ui/button";
 import { Heart, MapPin } from "lucide-react";
 import { PetCardProps } from "../types";
-import { useFavoritesStore } from "@/stores/favorites";
+import { usePetFavorites } from "@/features/pets/hooks/usePetFavorites";
 import { cn } from "@/lib/utils";
 
 export function PetCard({ id, name, breed, age, img, zip_code }: PetCardProps) {
-  const { addFavorite, removeFavorite, isFavorite } = useFavoritesStore();
+  const { toggleFavorite, isFavorite } = usePetFavorites();
   const favorite = isFavorite(id);
 
   const handleFavorite = () => {
-    if (favorite) {
-      removeFavorite(id);
-    } else {
-      addFavorite(id);
-    }
+    toggleFavorite(id);
   };
 
   return (
