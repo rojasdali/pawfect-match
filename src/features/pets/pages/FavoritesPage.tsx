@@ -6,10 +6,12 @@ import { Trash2 } from "lucide-react";
 
 export function FavoritesPage() {
   const {
-    fetchFavorites,
     isLoading: isLoadingFavorites,
     getNextPageParam,
     initialPageParam,
+    queryKey,
+    queryFn,
+    enabled,
   } = useFavoritesQuery();
   const hasFavorites = useFavoritesStore(
     (state) => state.getFavoriteCount() > 0
@@ -44,8 +46,9 @@ export function FavoritesPage() {
           </p>
         ) : (
           <PetGrid
-            queryKey={["favorites"]}
-            queryFn={fetchFavorites}
+            queryKey={queryKey}
+            queryFn={queryFn}
+            enabled={enabled}
             getNextPageParam={getNextPageParam}
             initialPageParam={initialPageParam}
           />

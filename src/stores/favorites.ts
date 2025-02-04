@@ -9,6 +9,7 @@ interface FavoritesState {
   removeFavorite: (id: string) => void;
   clearFavorites: () => void;
   getFavoriteCount: () => number;
+  getFavoriteIds: () => string[];
 }
 
 export const useFavoritesStore = create<FavoritesState>()(
@@ -58,6 +59,10 @@ export const useFavoritesStore = create<FavoritesState>()(
         const userEmail = useAuthStore.getState().user?.email;
         if (!userEmail) return 0;
         return get().favorites[userEmail]?.length || 0;
+      },
+      getFavoriteIds: () => {
+        const userEmail = useAuthStore.getState().user?.email?.toLowerCase();
+        return userEmail ? get().favorites[userEmail] || [] : [];
       },
     }),
     {

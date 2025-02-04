@@ -1,31 +1,22 @@
-import { useEffect, useRef } from "react";
+import { useRef } from "react";
 import { useBreakpoint } from "@/hooks/useBreakpoint";
 import { PetCard } from "./PetCard";
 import { PetCardSkeleton } from "./PetCardSkeleton";
+import { PetGridSkeleton } from "./PetGridSkeleton";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { useFavoritesStore } from "@/stores/favorites";
-import { PageResult } from "../types";
-
-const GRID_COLS = {
-  base: 1,
-  md: 2,
-  lg: 3,
-  xl: 4,
-} as const;
+import { GRID_COLUMNS } from "../constants";
+import { useIntersectionObserver } from "@/hooks/useIntersectionObserver";
 
 interface PetGridProps {
   queryKey: string[];
-  queryFn: (params: { pageParam: string | number }) => Promise<PageResult>;
-  getNextPageParam: (lastPage: PageResult) => string | undefined;
-  initialPageParam: string | number;
+  queryFn: (params: {
+    pageParam: string;
+  }) => Promise<{ pets: Pet[]; nextCursor: string | undefined }>;
+  enabled?: boolean;
 }
 
-export function PetGrid({
-  queryKey,
-  queryFn,
-  getNextPageParam,
-  initialPageParam,
-}: PetGridProps) {
+export function PetGrid({ queryKey, queryFn, enabled = true }: PetGridProps) {
   const loadMoreRef = useRef<HTMLDivElement>(null);
   const breakpoint = useBreakpoint();
   const isFavorite = useFavoritesStore((state) => state.isFavorite);
@@ -35,90 +26,83 @@ export function PetGrid({
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
-    isLoading: isLoadingPets,
+    isLoading,
     error,
-  } = useInfiniteQuery({
+  } = useInfiniteQuery<
+    { pets: Pet[]; nextCursor: string | undefined },
+    Error,
+    { pets: Pet[]; nextCursor: string | undefined },
+    string[],
+    string
+  >({
     queryKey,
     queryFn,
-    initialPageParam,
-    getNextPageParam,
+    enabled,
+    getNextPageParam: (lastPage) => lastPage.nextCursor,
+    initialPageParam: "0",
+    staleTime: Infinity,
+    gcTime: 1000 * 60 * 30,
+  });
+
+  useIntersectionObserver({
+    target: loadMoreRef,
+    onIntersect: () => fetchNextPage(),
+    enabled: hasNextPage && !isFetchingNextPage,
   });
 
   const currentCols =
     breakpoint === "xl"
-      ? GRID_COLS.xl
+      ? GRID_COLUMNS.xl
       : breakpoint === "lg"
-      ? GRID_COLS.lg
+      ? GRID_COLUMNS.lg
       : breakpoint === "md"
-      ? GRID_COLS.md
-      : GRID_COLS.base;
+      ? GRID_COLUMNS.md
+      : GRID_COLUMNS.base;
+
+  if (error) {
+    return <p className="text-red-500">Error loading pets: {error.message}</p>;
+  }
+
+  if (isLoading) {
+    return <PetGridSkeleton columns={4} />;
+  }
 
   const allPets = data?.pages.flatMap((page) => page.pets) ?? [];
   const remainingCols = allPets.length % currentCols;
   const skeletonsInLastRow =
     remainingCols === 0 ? 0 : currentCols - remainingCols;
 
-  useEffect(() => {
-    if (!allPets.length || !hasNextPage) {
-      return;
-    }
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const firstEntry = entries[0];
-
-        if (firstEntry.isIntersecting && hasNextPage && !isFetchingNextPage) {
-          fetchNextPage();
-        }
-      },
-      { threshold: 0.1, rootMargin: "100px" }
-    );
-
-    const currentTarget = loadMoreRef.current;
-    if (currentTarget) {
-      observer.observe(currentTarget);
-    }
-
-    return () => observer.disconnect();
-  }, [fetchNextPage, hasNextPage, isFetchingNextPage, allPets]);
-
-  if (error) {
-    return <p className="text-red-500">Error loading pets: {error.message}</p>;
-  }
-
-  if (!isLoadingPets && allPets.length === 0) {
+  if (!isLoading && allPets.length === 0) {
     return <p className="text-muted-foreground text-center">No pets found.</p>;
   }
 
   return (
     <>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        {isLoadingPets ? (
-          Array.from({ length: currentCols * 2 }).map((_, i) => (
-            <PetCardSkeleton key={i} />
-          ))
-        ) : (
-          <>
-            {allPets.map((pet) => (
-              <PetCard key={pet.id} {...pet} isFavorite={isFavorite(pet.id)} />
-            ))}
-            {(hasNextPage || isFetchingNextPage) &&
-              skeletonsInLastRow > 0 &&
-              Array.from({ length: skeletonsInLastRow }).map((_, i) => (
+        <>
+          {allPets.map((pet) => (
+            <PetCard key={pet.id} {...pet} isFavorite={isFavorite(pet.id)} />
+          ))}
+          {isFetchingNextPage && skeletonsInLastRow > 0 && (
+            <>
+              {Array.from({ length: skeletonsInLastRow }).map((_, i) => (
                 <PetCardSkeleton key={`fill-${i}`} />
               ))}
-          </>
-        )}
+            </>
+          )}
+        </>
       </div>
 
-      {!isLoadingPets && hasNextPage && (
+      {hasNextPage && (
         <>
           <div ref={loadMoreRef} className="h-20 mt-6" />
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {Array.from({ length: currentCols }).map((_, i) => (
-              <PetCardSkeleton key={`next-${i}`} />
-            ))}
-          </div>
+          {isFetchingNextPage && (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {Array.from({ length: currentCols }).map((_, i) => (
+                <PetCardSkeleton key={`next-${i}`} />
+              ))}
+            </div>
+          )}
         </>
       )}
     </>
