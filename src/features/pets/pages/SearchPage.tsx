@@ -8,17 +8,22 @@ export function SearchPage() {
   const { type = "dogs" } = useParams<{ type?: string }>();
   const { isLoadingLocation } = useFilters();
   const {
-    pets,
+    data,
+    isLoading: isSearching,
     isLoading: isPetsLoading,
     hasNextPage,
     fetchNextPage,
     isFetchingNextPage,
     total,
   } = usePetSearch();
+
   const isLoading = isPetsLoading || isLoadingLocation;
+
+  const pets = data?.pages.flatMap((page) => page.pets) ?? [];
+
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <SearchHeader />
+      <SearchHeader isSearching={isSearching} />
       <main className="container py-6">
         <h1 className="text-2xl font-bold mb-6 capitalize">
           {isLoading

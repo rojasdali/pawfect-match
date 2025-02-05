@@ -1,9 +1,8 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Heart, MapPin, Star } from "lucide-react";
-import { PetCardProps } from "../types";
-import { usePetFavorites } from "@/features/pets/hooks/usePetFavorites";
-import { usePetMatches } from "@/features/pets/hooks/usePetMatches";
+import { PetCardProps } from "@/features/pets/types/index";
+import { useFavoritesStore } from "@/stores/favorites";
 import { cn } from "@/lib/utils";
 import { useLocation } from "react-router-dom";
 
@@ -16,16 +15,25 @@ function formatAge(age: number): string {
 export function PetCard({ id, name, breed, age, img, zip_code }: PetCardProps) {
   const location = useLocation();
   const isMatchPage = location.pathname.includes("/match");
-  const { toggleFavorite, isFavorite } = usePetFavorites();
-  const { toggleMatch, isMatch } = usePetMatches();
-  const favorite = isFavorite(id);
-  const matched = isMatch(id);
+  const isFavorite = useFavoritesStore((state) => state.isFavorite(id));
+  const isMatched = useFavoritesStore((state) => state.isMatched(id));
+  const addFavorite = useFavoritesStore((state) => state.addFavorite);
+  const removeFavorite = useFavoritesStore((state) => state.removeFavorite);
+  const setMatched = useFavoritesStore((state) => state.setMatched);
 
   const handleAction = () => {
     if (isMatchPage) {
-      toggleMatch(id);
+      if (isMatched) {
+        setMatched(id, false);
+      } else {
+        setMatched(id, true);
+      }
     } else {
-      toggleFavorite(id);
+      if (isFavorite) {
+        removeFavorite(id);
+      } else {
+        addFavorite(id);
+      }
     }
   };
 
@@ -60,10 +68,10 @@ export function PetCard({ id, name, breed, age, img, zip_code }: PetCardProps) {
           }}
           aria-label={
             isMatchPage
-              ? matched
+              ? isMatched
                 ? `Remove ${name} from matches`
                 : `Add ${name} to matches`
-              : favorite
+              : isFavorite
               ? `Remove ${name} from favorites`
               : `Add ${name} to favorites`
           }
@@ -73,7 +81,7 @@ export function PetCard({ id, name, breed, age, img, zip_code }: PetCardProps) {
             <Star
               className={cn(
                 "h-5 w-5 transition-colors",
-                matched
+                isMatched
                   ? "fill-yellow-400 text-yellow-400"
                   : "text-gray-500 group-hover/action:fill-yellow-400 group-hover/action:text-yellow-400"
               )}
@@ -82,7 +90,7 @@ export function PetCard({ id, name, breed, age, img, zip_code }: PetCardProps) {
             <Heart
               className={cn(
                 "h-5 w-5 transition-colors",
-                favorite
+                isFavorite
                   ? "fill-red-500 text-red-500"
                   : "text-gray-500 group-hover/action:fill-red-500 group-hover/action:text-red-500"
               )}

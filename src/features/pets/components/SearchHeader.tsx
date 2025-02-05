@@ -3,9 +3,12 @@ import { useMemo } from "react";
 import { MobileSearchHeader } from "@/features/pets/components/search/MobileSearchHeader";
 import { DesktopSearchHeader } from "@/features/pets/components/search/DesktopSearchHeader";
 import { useFilters } from "../hooks/useFilters";
-import { usePetSearch } from "../hooks/usePetSearch";
 
-export function SearchHeader() {
+interface SearchHeaderProps {
+  isSearching?: boolean;
+}
+
+export function SearchHeader({ isSearching }: SearchHeaderProps) {
   const {
     getDefaults,
     applyFilters,
@@ -16,13 +19,7 @@ export function SearchHeader() {
   } = useFilters();
   const type = searchParams.get("type") || "dogs";
 
-  const { isLoading: isPetsLoading } = usePetSearch();
-
-  const { data: breeds, isLoading: isLoadingBreeds } = useBreeds({
-    enabled: !isPetsLoading,
-    staleTime: Infinity,
-    gcTime: 1000 * 60 * 30,
-  });
+  const { data: breeds, isLoading: isLoadingBreeds } = useBreeds(!isSearching);
 
   const handleSortChange = (value: string) => {
     const newParams = new URLSearchParams(searchParams);

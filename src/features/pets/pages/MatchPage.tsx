@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
 import { PetCard } from "../components/PetCard";
 import { useNavigate, Navigate } from "react-router-dom";
 import confetti from "canvas-confetti";
@@ -21,20 +21,21 @@ export function MatchPage() {
   const [matchedPet, setMatchedPet] = useState<Pet | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  const favoriteIds = useFavoritesStore((state) => state.getFavoriteIds());
+  const favoriteIds = useMemo(
+    () => useFavoritesStore.getState().getFavoriteIds({ shuffle: true }),
+    []
+  );
 
   // Redirect if not enough favorites
   if (favoriteIds.length < 2) {
     return <Navigate to={ROUTES.HOME} replace />;
   }
 
-  // Memoize the loadFavorites function
   const loadFavoritesAndFindMatch = useCallback(async () => {
     try {
       const pets = await petsApi.getPetsByIds("dogs", favoriteIds);
       setFavorites(pets);
 
-      // Randomly select a match
       const randomIndex = Math.floor(Math.random() * pets.length);
       setMatchedPet(pets[randomIndex]);
 
@@ -43,7 +44,7 @@ export function MatchPage() {
       console.error("Error loading favorites:", error);
       setIsLoading(false);
     }
-  }, [favoriteIds.join(",")]); // Only recreate if favoriteIds change
+  }, []);
 
   useEffect(() => {
     loadFavoritesAndFindMatch();
@@ -52,16 +53,13 @@ export function MatchPage() {
   useEffect(() => {
     if (isLoading || !favorites.length || showMatch) return;
 
-    // Shuffle through favorites before showing match
     const interval = setInterval(() => {
       setCurrentPetIndex((prev) => (prev + 1) % favorites.length);
-    }, 150); // Speed of shuffling
+    }, 150);
 
-    // Show the match after 3 seconds
     const timeout = setTimeout(() => {
       setShowMatch(true);
 
-      // Trigger a few celebratory stars
       const count = 3;
       const defaults = {
         spread: 120,
@@ -92,7 +90,7 @@ export function MatchPage() {
           fire(0.25, {
             origin: { x: randomInRange(0.7, 0.8), y: 0.5 },
           });
-        }, i * 750); // Stagger the bursts
+        }, i * 750);
       }
     }, 3000);
 
