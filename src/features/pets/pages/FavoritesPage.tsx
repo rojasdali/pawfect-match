@@ -18,7 +18,9 @@ export function FavoritesPage() {
     clearMatchesFromUI,
   } = useFavoritesQuery();
 
-  const totalFavorites = useFavoritesStore((state) => state.getFavoriteCount());
+  const totalFavorites = useFavoritesStore((state) =>
+    state.getTotalFavoriteCount()
+  );
   const hasFavorites = totalFavorites > 0;
   const clearFavorites = useFavoritesStore((state) => state.clearFavorites);
   const clearMatches = useFavoritesStore((state) => state.clearMatches);
@@ -34,6 +36,9 @@ export function FavoritesPage() {
     searchParams.has("breed") ||
     searchParams.has("ageMin") ||
     searchParams.has("ageMax");
+
+  const unmatchedCount = useFavoritesStore((state) => state.getFavoriteCount());
+  const hasUnmatchedFavorites = unmatchedCount > 0;
 
   const handleClearFavorites = () => {
     clearFavorites();
@@ -85,7 +90,7 @@ export function FavoritesPage() {
             )}
           </h1>
           <div className="flex items-center gap-2">
-            {hasFavorites && (
+            {hasUnmatchedFavorites && (
               <Button
                 variant="outline"
                 size="sm"

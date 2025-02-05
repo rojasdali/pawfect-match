@@ -12,20 +12,21 @@ interface QueryData {
 }
 
 export function useFavoritesQuery() {
-  const favoriteIds = useFavoritesStore((state) => state.getFavoriteIds());
+  const favoriteIds = useFavoritesStore((state) =>
+    state.getFavoriteIds({ excludeMatched: false })
+  );
   const hasFavorites = favoriteIds.length > 0;
   const queryClient = useQueryClient();
   const location = useLocation();
   const [searchParams] = useSearchParams();
   const isOnFavoritesPage = location.pathname === "/favorites";
 
-  const queryKey = ["favorites", searchParams.toString()];
+  const queryKey = ["favorites", searchParams.toString(), favoriteIds];
 
   const queryFn = async ({ pageParam = "0" }) => {
-    const currentFavoriteIds = useFavoritesStore.getState().getFavoriteIds();
     const start = Number(pageParam) * 25;
     const end = start + 25;
-    const pageIds = currentFavoriteIds.slice(start, end);
+    const pageIds = favoriteIds.slice(start, end);
 
     if (pageIds.length === 0) {
       return { pets: [], nextCursor: undefined };
@@ -71,9 +72,7 @@ export function useFavoritesQuery() {
     return {
       pets,
       nextCursor:
-        end < currentFavoriteIds.length
-          ? String(Number(pageParam) + 1)
-          : undefined,
+        end < favoriteIds.length ? String(Number(pageParam) + 1) : undefined,
     };
   };
 

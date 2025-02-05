@@ -17,6 +17,7 @@ interface FavoritesState {
   clearFavorites: () => void;
   clearMatches: () => void;
   getFavoriteCount: () => number;
+  getTotalFavoriteCount: () => number;
   getFavoriteIds: (options?: {
     shuffle?: boolean;
     excludeMatched?: boolean;
@@ -120,7 +121,16 @@ export const useFavoritesStore = create<FavoritesState>()(
       },
 
       getFavoriteCount: () => {
-        const userEmail = useAuthStore.getState().user?.email;
+        const userEmail = useAuthStore.getState().user?.email?.toLowerCase();
+        if (!userEmail) return 0;
+
+        const favorites = get().favorites[userEmail] || [];
+        // Only count unmatched favorites for match button logic
+        return favorites.filter((fav) => !fav.matched).length;
+      },
+
+      getTotalFavoriteCount: () => {
+        const userEmail = useAuthStore.getState().user?.email?.toLowerCase();
         if (!userEmail) return 0;
         return get().favorites[userEmail]?.length || 0;
       },
