@@ -1,9 +1,11 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Heart, MapPin } from "lucide-react";
+import { Heart, MapPin, Star } from "lucide-react";
 import { PetCardProps } from "../types";
 import { usePetFavorites } from "@/features/pets/hooks/usePetFavorites";
+import { usePetMatches } from "@/features/pets/hooks/usePetMatches";
 import { cn } from "@/lib/utils";
+import { useLocation } from "react-router-dom";
 
 function formatAge(age: number): string {
   if (age === 0) return "< 1 year";
@@ -12,11 +14,19 @@ function formatAge(age: number): string {
 }
 
 export function PetCard({ id, name, breed, age, img, zip_code }: PetCardProps) {
+  const location = useLocation();
+  const isMatchPage = location.pathname.includes("/match");
   const { toggleFavorite, isFavorite } = usePetFavorites();
+  const { toggleMatch, isMatch } = usePetMatches();
   const favorite = isFavorite(id);
+  const matched = isMatch(id);
 
-  const handleFavorite = () => {
-    toggleFavorite(id);
+  const handleAction = () => {
+    if (isMatchPage) {
+      toggleMatch(id);
+    } else {
+      toggleFavorite(id);
+    }
   };
 
   const displayAge = formatAge(age);
@@ -46,23 +56,38 @@ export function PetCard({ id, name, breed, age, img, zip_code }: PetCardProps) {
           size="icon"
           onClick={(e) => {
             e.stopPropagation();
-            handleFavorite();
+            handleAction();
           }}
           aria-label={
-            favorite
+            isMatchPage
+              ? matched
+                ? `Remove ${name} from matches`
+                : `Add ${name} to matches`
+              : favorite
               ? `Remove ${name} from favorites`
               : `Add ${name} to favorites`
           }
-          className="absolute top-2 right-2 bg-white/90 dark:bg-background/80 backdrop-blur-sm hover:bg-white dark:hover:bg-background/90 shadow-sm h-8 w-8 group/heart"
+          className="absolute top-2 right-2 bg-white/90 dark:bg-background/80 backdrop-blur-sm hover:bg-white dark:hover:bg-background/90 shadow-sm h-8 w-8 group/action"
         >
-          <Heart
-            className={cn(
-              "h-5 w-5 transition-colors",
-              favorite
-                ? "fill-red-500 text-red-500"
-                : "text-gray-500 group-hover/heart:fill-red-500 group-hover/heart:text-red-500"
-            )}
-          />
+          {isMatchPage ? (
+            <Star
+              className={cn(
+                "h-5 w-5 transition-colors",
+                matched
+                  ? "fill-yellow-400 text-yellow-400"
+                  : "text-gray-500 group-hover/action:fill-yellow-400 group-hover/action:text-yellow-400"
+              )}
+            />
+          ) : (
+            <Heart
+              className={cn(
+                "h-5 w-5 transition-colors",
+                favorite
+                  ? "fill-red-500 text-red-500"
+                  : "text-gray-500 group-hover/action:fill-red-500 group-hover/action:text-red-500"
+              )}
+            />
+          )}
         </Button>
       </div>
       <CardContent className="pt-4">

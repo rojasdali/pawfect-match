@@ -12,6 +12,7 @@ import { NotFoundPage } from "@/components/pages/NotFoundPage";
 import { useAuthStore } from "@/stores/auth";
 import { FavoritesPage } from "@/features/pets/pages/FavoritesPage";
 import { ROUTES } from "@/config/routes";
+import { MatchPage } from "@/features/pets/pages/MatchPage";
 
 const VALID_PET_TYPES = ["dogs"] as const;
 type PetType = (typeof VALID_PET_TYPES)[number];
@@ -58,6 +59,17 @@ export const routes = [
           {
             path: "search/:type",
             element: <SearchPage />,
+            errorElement: <NotFoundPage />,
+            loader: ({ params }: LoaderFunctionArgs) => {
+              if (!params.type || !isPetType(params.type)) {
+                throw new Error("Invalid pet type");
+              }
+              return null;
+            },
+          },
+          {
+            path: ":type/match",
+            element: <MatchPage />,
             errorElement: <NotFoundPage />,
             loader: ({ params }: LoaderFunctionArgs) => {
               if (!params.type || !isPetType(params.type)) {

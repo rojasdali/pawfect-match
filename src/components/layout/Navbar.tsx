@@ -42,7 +42,7 @@ export function Navbar() {
       <div className="container flex h-14 items-center">
         <button
           onClick={handleHomeClick}
-          className="flex gap-2 items-center mr-4 hover:opacity-80 transition-opacity"
+          className="flex gap-2 items-center mr-4 hover:opacity-90 transition-opacity"
         >
           <PawPrint className="h-6 w-6 text-[#818CF8]" />
           <span className="font-semibold text-lg text-[#818CF8]">
@@ -66,16 +66,16 @@ export function Navbar() {
                       navigate("/favorites");
                     }
                   }}
-                  className="relative"
+                  className="relative h-10 w-10"
                 >
                   <Heart
                     className={cn(
-                      "h-5 w-5 transition-colors",
+                      "h-6 w-6 transition-colors",
                       hasFavorites && "fill-red-500 text-red-500"
                     )}
                   />
                   {hasFavorites && (
-                    <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-[#818CF8] text-[11px] font-semibold text-white flex items-center justify-center shadow-sm ring-2 ring-white dark:ring-background">
+                    <span className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-[#818CF8] text-xs font-semibold text-white flex items-center justify-center shadow-[0_0_4px_rgba(129,140,248,0.5)] ring-2 ring-white dark:ring-background">
                       {favoriteCount}
                     </span>
                   )}
@@ -90,10 +90,10 @@ export function Navbar() {
               <DropdownMenuTrigger asChild>
                 <Button
                   variant="ghost"
-                  className="flex items-center gap-2 px-3 hover:bg-accent dark:hover:bg-gray-700/50"
+                  className="flex items-center gap-2 px-4 h-10 hover:bg-accent dark:hover:bg-gray-700/50"
                 >
-                  <User className="h-5 w-5 text-muted-foreground dark:text-gray-100" />
-                  <span className="capitalize text-sm">{user.name}</span>
+                  <User className="h-6 w-6 text-muted-foreground dark:text-gray-100" />
+                  <span className="capitalize text-base">{user.name}</span>
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-48">
