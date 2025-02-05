@@ -1,17 +1,18 @@
 import { petsApi } from "../api/pets";
 import { useFavoritesStore } from "@/stores/favorites";
 import { useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
+import { useLocation } from "react-router-dom";
 
 export function useFavoritesQuery() {
   const favoriteIds = useFavoritesStore((state) => state.getFavoriteIds());
   const hasFavorites = favoriteIds.length > 0;
   const queryClient = useQueryClient();
+  const location = useLocation();
+  const isOnFavoritesPage = location.pathname === "/favorites";
 
-  // Use stable query key
   const queryKey = ["favorites"];
 
   const queryFn = async ({ pageParam = "0" }) => {
-    // Get fresh favoriteIds inside query function
     const currentFavoriteIds = useFavoritesStore.getState().getFavoriteIds();
     const start = Number(pageParam) * 25;
     const end = start + 25;
@@ -33,14 +34,13 @@ export function useFavoritesQuery() {
   const query = useInfiniteQuery({
     queryKey,
     queryFn,
-    enabled: hasFavorites,
+    enabled: hasFavorites && isOnFavoritesPage,
     getNextPageParam: (lastPage) => lastPage.nextCursor,
     initialPageParam: "0",
     staleTime: Infinity,
     gcTime: 1000 * 60 * 30,
   });
 
-  // Function to optimistically remove a pet
   const removePet = (petId: string) => {
     queryClient.setQueryData<any>(queryKey, (oldData) => {
       if (!oldData) return oldData;

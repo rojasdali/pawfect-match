@@ -30,6 +30,16 @@ export function SearchHeader() {
     setSearchParams(newParams);
   };
 
+  const handleBreedChange = (breed: string) => {
+    const newParams = new URLSearchParams(searchParams);
+    if (breed === "all") {
+      newParams.delete("breed");
+    } else {
+      newParams.set("breed", breed);
+    }
+    setSearchParams(newParams);
+  };
+
   const filterSheetProps = useMemo(
     () => ({
       type: "pets",
@@ -50,6 +60,9 @@ export function SearchHeader() {
         onSortChange={handleSortChange}
         onQuickFilter={(type) => applyQuickFilter(type, breeds)}
         onRemoveFilter={removeFilter}
+        onBreedChange={handleBreedChange}
+        breeds={breeds ?? []}
+        isLoadingBreeds={isLoadingBreeds}
         filterSheetProps={filterSheetProps}
       />
       <DesktopSearchHeader
@@ -58,6 +71,9 @@ export function SearchHeader() {
         onSortChange={handleSortChange}
         onQuickFilter={(type) => applyQuickFilter(type, breeds)}
         onRemoveFilter={removeFilter}
+        onBreedChange={handleBreedChange}
+        breeds={breeds ?? []}
+        isLoadingBreeds={isLoadingBreeds}
         filterSheetProps={filterSheetProps}
       />
     </div>

@@ -24,15 +24,10 @@ import { SlidersHorizontal } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { filterSchema, type Filters } from "../schemas/filters";
-import { cn } from "@/lib/utils";
-import { Check } from "lucide-react";
 import { useState, useMemo, useEffect } from "react";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
+
 import { useSearchParams } from "react-router-dom";
+import { SearchPopover } from "./search/SearchPopover";
 
 interface FilterSheetProps {
   type: string;
@@ -54,8 +49,6 @@ export function FilterSheet({
   onSheetOpen,
 }: FilterSheetProps) {
   const [searchParams] = useSearchParams();
-  const [inputValue, setInputValue] = useState("");
-  const [popoverOpen, setPopoverOpen] = useState(false);
 
   const form = useForm<Filters>({
     resolver: zodResolver(filterSchema),
@@ -66,7 +59,6 @@ export function FilterSheet({
     },
   });
 
-  // Reset form when sheet closes
   useEffect(() => {
     if (!isOpen) {
       form.reset({
@@ -74,16 +66,8 @@ export function FilterSheet({
         maxAge: searchParams.get("ageMax") ?? "",
         breed: searchParams.get("breed") ?? "all",
       });
-      setInputValue("");
     }
   }, [isOpen, searchParams, form]);
-
-  const filteredBreeds = useMemo(() => {
-    if (!inputValue) return breeds;
-    return breeds.filter((breed) =>
-      breed.toLowerCase().includes(inputValue.toLowerCase())
-    );
-  }, [breeds, inputValue]);
 
   const handleSubmit = (values: Filters) => {
     onApplyFilters(values);
@@ -177,93 +161,15 @@ export function FilterSheet({
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Breed</FormLabel>
-                    <Popover
-                      open={popoverOpen}
-                      onOpenChange={setPopoverOpen}
-                      modal={true}
-                    >
-                      <PopoverTrigger asChild>
-                        <Button
-                          variant="outline"
-                          role="combobox"
-                          className="w-full justify-between"
-                        >
-                          {field.value === "all" ? "All Breeds" : field.value}
-                        </Button>
-                      </PopoverTrigger>
-                      <PopoverContent
-                        className="p-0 w-[--trigger-width]"
-                        style={
-                          {
-                            "--trigger-width":
-                              "var(--radix-popover-trigger-width)",
-                          } as React.CSSProperties
-                        }
-                        align="start"
-                      >
-                        <div className="p-2 border-b">
-                          <Input
-                            placeholder="Search breeds..."
-                            value={inputValue}
-                            onChange={(e) => setInputValue(e.target.value)}
-                            disabled={isLoadingBreeds}
-                          />
-                        </div>
-                        <div
-                          className="overflow-y-auto touch-auto"
-                          style={{
-                            maxHeight: "calc(100vh - 200px)",
-                            WebkitOverflowScrolling: "touch",
-                          }}
-                        >
-                          <div className="p-2 space-y-1">
-                            <Button
-                              type="button"
-                              variant="ghost"
-                              className="w-full justify-start"
-                              onClick={() => {
-                                field.onChange("all");
-                                setPopoverOpen(false);
-                                setInputValue("");
-                              }}
-                            >
-                              <Check
-                                className={cn(
-                                  "mr-2 h-4 w-4",
-                                  field.value === "all"
-                                    ? "opacity-100"
-                                    : "opacity-0"
-                                )}
-                              />
-                              All Breeds
-                            </Button>
-                            {filteredBreeds.map((breed) => (
-                              <Button
-                                key={breed}
-                                type="button"
-                                variant="ghost"
-                                className="w-full justify-start"
-                                onClick={() => {
-                                  field.onChange(breed);
-                                  setPopoverOpen(false);
-                                  setInputValue("");
-                                }}
-                              >
-                                <Check
-                                  className={cn(
-                                    "mr-2 h-4 w-4",
-                                    field.value === breed
-                                      ? "opacity-100"
-                                      : "opacity-0"
-                                  )}
-                                />
-                                {breed}
-                              </Button>
-                            ))}
-                          </div>
-                        </div>
-                      </PopoverContent>
-                    </Popover>
+                    <SearchPopover
+                      options={breeds}
+                      value={field.value}
+                      onChange={field.onChange}
+                      isLoading={isLoadingBreeds}
+                      placeholder="Select a breed"
+                      searchPlaceholder="Search breeds..."
+                      allOptionText="All Breeds"
+                    />
                     <FormMessage />
                   </FormItem>
                 )}

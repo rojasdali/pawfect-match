@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import { SearchInput } from "./SearchInput";
 import { SortDropdown } from "./SortDropdown";
 import { FilterSheet } from "../FilterSheet";
 import { Button } from "@/components/ui/button";
@@ -8,6 +7,7 @@ import { QuickFilters } from "./QuickFilters";
 import { FilterPills } from "./FilterPills";
 import { type Filters } from "../../schemas/filters";
 import { type QuickFilterType } from "../../types";
+import { SearchPopover } from "./SearchPopover";
 
 interface MobileSearchHeaderProps {
   type: string;
@@ -15,6 +15,9 @@ interface MobileSearchHeaderProps {
   onSortChange: (value: string) => void;
   onQuickFilter: (type: QuickFilterType) => void;
   onRemoveFilter: (key: string | string[]) => void;
+  onBreedChange: (breed: string) => void;
+  breeds: string[];
+  isLoadingBreeds: boolean;
   filterSheetProps: {
     type: string;
     breeds: string[];
@@ -32,6 +35,9 @@ export function MobileSearchHeader({
   onSortChange,
   onQuickFilter,
   onRemoveFilter,
+  onBreedChange,
+  breeds,
+  isLoadingBreeds,
   filterSheetProps,
 }: MobileSearchHeaderProps) {
   const [isFiltersExpanded, setIsFiltersExpanded] = useState(false);
@@ -44,7 +50,17 @@ export function MobileSearchHeader({
   return (
     <div className="container flex flex-col gap-3 py-3 lg:hidden">
       <div className="flex items-center gap-2">
-        <SearchInput onChange={(e) => console.log(e)} />
+        <div className="flex-1">
+          <SearchPopover
+            options={breeds}
+            value={searchParams.get("breed") ?? "all"}
+            onChange={onBreedChange}
+            isLoading={isLoadingBreeds}
+            placeholder="Filter by breed"
+            searchPlaceholder="Search breeds..."
+            allOptionText="All Breeds"
+          />
+        </div>
         <SortDropdown
           onSortChange={onSortChange}
           currentSort={searchParams.get("sort") || "breed:asc"}

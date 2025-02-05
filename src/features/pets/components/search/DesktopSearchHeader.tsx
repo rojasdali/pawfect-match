@@ -1,4 +1,3 @@
-import { SearchInput } from "./SearchInput";
 import { SortDropdown } from "./SortDropdown";
 import { FilterSheet } from "../FilterSheet";
 import { QuickFilters } from "./QuickFilters";
@@ -6,6 +5,7 @@ import { FilterPills } from "./FilterPills";
 import { type Filters } from "../../schemas/filters";
 import { type QuickFilterType } from "../../types";
 import { useState } from "react";
+import { SearchPopover } from "./SearchPopover";
 
 interface DesktopSearchHeaderProps {
   type: string;
@@ -13,6 +13,9 @@ interface DesktopSearchHeaderProps {
   onSortChange: (value: string) => void;
   onQuickFilter: (type: QuickFilterType) => void;
   onRemoveFilter: (key: string | string[]) => void;
+  onBreedChange: (breed: string) => void;
+  breeds: string[];
+  isLoadingBreeds: boolean;
   filterSheetProps: {
     type: string;
     breeds: string[];
@@ -30,6 +33,9 @@ export function DesktopSearchHeader({
   onSortChange,
   onQuickFilter,
   onRemoveFilter,
+  onBreedChange,
+  breeds,
+  isLoadingBreeds,
   filterSheetProps,
 }: DesktopSearchHeaderProps) {
   const [isFilterSheetOpen, setIsFilterSheetOpen] = useState(false);
@@ -55,7 +61,15 @@ export function DesktopSearchHeader({
           />
         </div>
         <div className="w-96">
-          <SearchInput onChange={(e) => console.log(e)} />
+          <SearchPopover
+            options={breeds}
+            value={searchParams.get("breed") ?? "all"}
+            onChange={onBreedChange}
+            isLoading={isLoadingBreeds}
+            placeholder="Filter by breed"
+            searchPlaceholder="Search breeds..."
+            allOptionText="All Breeds"
+          />
         </div>
       </div>
       <div className="container py-2">
