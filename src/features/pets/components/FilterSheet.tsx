@@ -17,6 +17,7 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
+  FormDescription,
 } from "@/components/ui/form";
 
 import { Input } from "@/components/ui/input";
@@ -24,7 +25,7 @@ import { SlidersHorizontal } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { filterSchema, type Filters } from "../schemas/filters";
-import { useState, useMemo, useEffect } from "react";
+import { useEffect } from "react";
 
 import { useSearchParams } from "react-router-dom";
 import { SearchPopover } from "./search/SearchPopover";
@@ -56,6 +57,9 @@ export function FilterSheet({
       minAge: searchParams.get("ageMin") ?? "",
       maxAge: searchParams.get("ageMax") ?? "",
       breed: searchParams.get("breed") ?? "all",
+      distance: searchParams.get("distance")
+        ? Number(searchParams.get("distance"))
+        : null,
     },
   });
 
@@ -65,6 +69,9 @@ export function FilterSheet({
         minAge: searchParams.get("ageMin") ?? "",
         maxAge: searchParams.get("ageMax") ?? "",
         breed: searchParams.get("breed") ?? "all",
+        distance: searchParams.get("distance")
+          ? Number(searchParams.get("distance"))
+          : null,
       });
     }
   }, [isOpen, searchParams, form]);
@@ -117,13 +124,13 @@ export function FilterSheet({
                     control={form.control}
                     name="minAge"
                     render={({ field }) => (
-                      <FormItem className="min-h-[70px]">
+                      <FormItem className="min-h-[70px] flex-1">
                         <FormControl>
                           <Input
                             type="number"
                             min={0}
                             placeholder="Min"
-                            className="w-20"
+                            className="w-full"
                             {...field}
                           />
                         </FormControl>
@@ -138,13 +145,13 @@ export function FilterSheet({
                     control={form.control}
                     name="maxAge"
                     render={({ field }) => (
-                      <FormItem className="min-h-[70px]">
+                      <FormItem className="min-h-[70px] flex-1">
                         <FormControl>
                           <Input
                             type="number"
                             min={0}
                             placeholder="Max"
-                            className="w-20"
+                            className="w-full"
                             {...field}
                           />
                         </FormControl>
@@ -153,6 +160,51 @@ export function FilterSheet({
                     )}
                   />
                 </div>
+              </div>
+
+              <div className="space-y-4">
+                <FormField
+                  control={form.control}
+                  name="distance"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Distance (miles)</FormLabel>
+                      <div className="flex items-center gap-4">
+                        <FormControl className="flex-1">
+                          <Input
+                            type="number"
+                            min={0}
+                            max={500}
+                            placeholder="Enter radius (max 500)"
+                            className="w-full"
+                            value={field.value ?? ""}
+                            onChange={(e) => {
+                              const value = e.target.value;
+                              field.onChange(
+                                value === "" ? null : Number(value)
+                              );
+                            }}
+                          />
+                        </FormControl>
+                        {field.value && (
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => field.onChange(null)}
+                            className="shrink-0"
+                          >
+                            All locations
+                          </Button>
+                        )}
+                      </div>
+                      <FormDescription className="text-xs text-muted-foreground">
+                        Leave empty to search all locations (max 500 miles)
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
               </div>
 
               <FormField
@@ -194,6 +246,7 @@ export function FilterSheet({
                         minAge: "",
                         maxAge: "",
                         breed: "all",
+                        distance: null,
                       });
                     }}
                   >

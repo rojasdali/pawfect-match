@@ -9,6 +9,9 @@ export function useFilters() {
     breed: searchParams.get("breed") ?? "all",
     minAge: searchParams.get("ageMin") ?? "",
     maxAge: searchParams.get("ageMax") ?? "",
+    distance: searchParams.get("distance")
+      ? Number(searchParams.get("distance"))
+      : null,
   });
 
   const applyFilters = (values: Filters) => {
@@ -30,6 +33,12 @@ export function useFilters() {
       newParams.delete("breed");
     } else {
       newParams.set("breed", values.breed);
+    }
+
+    if (values.distance === null) {
+      newParams.delete("distance");
+    } else {
+      newParams.set("distance", String(values.distance));
     }
 
     setSearchParams(newParams);
