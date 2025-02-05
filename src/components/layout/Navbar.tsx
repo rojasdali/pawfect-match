@@ -30,10 +30,6 @@ export function Navbar() {
   const hasFavorites = favoriteCount > 0;
 
   const handleHomeClick = () => {
-    if (location.pathname.includes("/search")) {
-      return;
-    }
-
     if (location.state?.from) {
       navigate(location.state.from);
     } else {
