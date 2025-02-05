@@ -15,8 +15,12 @@ interface FavoritesState {
   removeFavorite: (id: string) => void;
   setMatched: (id: string, matched: boolean) => void;
   clearFavorites: () => void;
+  clearMatches: () => void;
   getFavoriteCount: () => number;
-  getFavoriteIds: (options?: { shuffle?: boolean }) => string[];
+  getFavoriteIds: (options?: {
+    shuffle?: boolean;
+    excludeMatched?: boolean;
+  }) => string[];
   getMatchedIds: () => string[];
 }
 
@@ -93,7 +97,24 @@ export const useFavoritesStore = create<FavoritesState>()(
         set((state) => ({
           favorites: {
             ...state.favorites,
-            [userEmail]: [],
+            [userEmail]:
+              state.favorites[userEmail]?.filter((fav) => fav.matched) || [],
+          },
+        }));
+      },
+
+      clearMatches: () => {
+        const userEmail = useAuthStore.getState().user?.email;
+        if (!userEmail) return;
+
+        set((state) => ({
+          favorites: {
+            ...state.favorites,
+            [userEmail]:
+              state.favorites[userEmail]?.map((fav) => ({
+                ...fav,
+                matched: false,
+              })) || [],
           },
         }));
       },
@@ -107,10 +128,17 @@ export const useFavoritesStore = create<FavoritesState>()(
       getFavoriteIds: (options = {}) => {
         const userEmail = useAuthStore.getState().user?.email?.toLowerCase();
         if (!userEmail) return [];
-        const ids = get().favorites[userEmail]?.map((fav) => fav.id) || [];
 
-        if (options?.shuffle) {
-          // Fisher-Yates shuffle
+        let favorites = get().favorites[userEmail] || [];
+
+        if (options.excludeMatched) {
+          favorites = favorites.filter((fav) => !fav.matched);
+        }
+
+        let ids = favorites.map((fav) => fav.id);
+
+        // Shuffle if requested
+        if (options.shuffle) {
           const shuffled = [...ids];
           for (let i = shuffled.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));

@@ -5,6 +5,7 @@ import { PetCardProps } from "@/features/pets/types/index";
 import { useFavoritesStore } from "@/stores/favorites";
 import { cn } from "@/lib/utils";
 import { useLocation } from "react-router-dom";
+import { useFavoritesQuery } from "@/features/pets/hooks/useFavoritesQuery";
 
 function formatAge(age: number): string {
   if (age === 0) return "< 1 year";
@@ -21,19 +22,16 @@ export function PetCard({ id, name, breed, age, img, zip_code }: PetCardProps) {
   const removeFavorite = useFavoritesStore((state) => state.removeFavorite);
   const setMatched = useFavoritesStore((state) => state.setMatched);
 
+  const { removePet } = useFavoritesQuery();
+
   const handleAction = () => {
-    if (isMatchPage) {
-      if (isMatched) {
-        setMatched(id, false);
-      } else {
-        setMatched(id, true);
-      }
+    if (isMatched) {
+      setMatched(id, false);
+    } else if (isFavorite) {
+      removeFavorite(id);
+      removePet(id);
     } else {
-      if (isFavorite) {
-        removeFavorite(id);
-      } else {
-        addFavorite(id);
-      }
+      addFavorite(id);
     }
   };
 
@@ -42,10 +40,18 @@ export function PetCard({ id, name, breed, age, img, zip_code }: PetCardProps) {
   return (
     <Card
       tabIndex={0}
-      className="group relative overflow-hidden hover:shadow-md transition-shadow focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+      className={cn(
+        "group relative overflow-hidden hover:shadow-md transition-shadow focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+        isMatchPage && "max-w-lg mx-auto"
+      )}
       aria-label={`${name}, ${breed}, ${age} years old`}
     >
-      <div className="aspect-square overflow-hidden relative">
+      <div
+        className={cn(
+          "overflow-hidden relative",
+          isMatchPage ? "aspect-[4/3]" : "aspect-square"
+        )}
+      >
         <img
           src={img}
           alt={`${name} the ${breed}`}
@@ -54,7 +60,14 @@ export function PetCard({ id, name, breed, age, img, zip_code }: PetCardProps) {
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
         <div className="absolute bottom-3 left-3 right-3">
-          <h3 className="text-2xl font-bold text-white mb-2">{name}</h3>
+          <h3
+            className={cn(
+              "font-bold text-white mb-2",
+              isMatchPage ? "text-3xl" : "text-2xl"
+            )}
+          >
+            {name}
+          </h3>
           <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-white/90 dark:bg-background/80 backdrop-blur-sm text-gray-800 dark:text-gray-200">
             {breed}
           </span>
@@ -67,23 +80,19 @@ export function PetCard({ id, name, breed, age, img, zip_code }: PetCardProps) {
             handleAction();
           }}
           aria-label={
-            isMatchPage
-              ? isMatched
-                ? `Remove ${name} from matches`
-                : `Add ${name} to matches`
+            isMatched
+              ? `Remove ${name} from matches`
               : isFavorite
               ? `Remove ${name} from favorites`
               : `Add ${name} to favorites`
           }
           className="absolute top-2 right-2 bg-white/90 dark:bg-background/80 backdrop-blur-sm hover:bg-white dark:hover:bg-background/90 shadow-sm h-8 w-8 group/action"
         >
-          {isMatchPage ? (
+          {isMatched ? (
             <Star
               className={cn(
                 "h-5 w-5 transition-colors",
-                isMatched
-                  ? "fill-yellow-400 text-yellow-400"
-                  : "text-gray-500 group-hover/action:fill-yellow-400 group-hover/action:text-yellow-400"
+                "fill-yellow-400 text-yellow-400"
               )}
             />
           ) : (
@@ -98,7 +107,7 @@ export function PetCard({ id, name, breed, age, img, zip_code }: PetCardProps) {
           )}
         </Button>
       </div>
-      <CardContent className="pt-4">
+      <CardContent className={cn("pt-4", isMatchPage && "pb-6")}>
         <div className="flex items-center justify-between">
           <p className="text-sm text-muted-foreground dark:text-gray-200">
             {displayAge}

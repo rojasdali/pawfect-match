@@ -33,6 +33,12 @@ export function useFavoritesQuery() {
 
     let pets = await petsApi.getPetsByIds("dogs", pageIds);
 
+    if (searchParams.has("matches")) {
+      pets = pets.filter((pet) =>
+        useFavoritesStore.getState().isMatched(pet.id)
+      );
+    }
+
     if (searchParams.has("breed")) {
       const breed = searchParams.get("breed");
       pets = pets.filter((pet) => pet.breed === breed);
@@ -95,9 +101,43 @@ export function useFavoritesQuery() {
     });
   };
 
+  const clearUnmatchedFromUI = () => {
+    queryClient.setQueryData<QueryData>(queryKey, (oldData) => {
+      if (!oldData) return oldData;
+
+      return {
+        ...oldData,
+        pages: oldData.pages.map((page) => ({
+          ...page,
+          pets: page.pets.filter((pet) =>
+            useFavoritesStore.getState().isMatched(pet.id)
+          ),
+        })),
+      };
+    });
+  };
+
+  const clearMatchesFromUI = () => {
+    queryClient.setQueryData<QueryData>(queryKey, (oldData) => {
+      if (!oldData) return oldData;
+
+      return {
+        ...oldData,
+        pages: oldData.pages.map((page) => ({
+          ...page,
+          pets: page.pets.filter(
+            (pet) => !useFavoritesStore.getState().isMatched(pet.id)
+          ),
+        })),
+      };
+    });
+  };
+
   return {
     ...query,
     pets: query.data?.pages.flatMap((page) => page.pets) ?? [],
     removePet,
+    clearUnmatchedFromUI,
+    clearMatchesFromUI,
   };
 }

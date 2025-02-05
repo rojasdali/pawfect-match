@@ -6,6 +6,14 @@ import { type Filters } from "../../schemas/filters";
 import { type QuickFilterType } from "../../types";
 import { useState } from "react";
 import { SearchPopover } from "./SearchPopover";
+import { Star } from "lucide-react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 interface DesktopSearchHeaderProps {
   type: string;
@@ -26,6 +34,7 @@ interface DesktopSearchHeaderProps {
     onSheetOpen?: () => void;
   };
   locateButton?: React.ReactNode;
+  onMatchesFilter?: () => void;
 }
 
 export function DesktopSearchHeader({
@@ -39,6 +48,7 @@ export function DesktopSearchHeader({
   isLoadingBreeds,
   filterSheetProps,
   locateButton,
+  onMatchesFilter,
 }: DesktopSearchHeaderProps) {
   const [isFilterSheetOpen, setIsFilterSheetOpen] = useState(false);
 
@@ -62,6 +72,26 @@ export function DesktopSearchHeader({
             onOpenChange={setIsFilterSheetOpen}
             onSheetOpen={filterSheetProps.onSheetOpen}
           />
+          {onMatchesFilter && (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant={searchParams.has("matches") ? "default" : "outline"}
+                  size="sm"
+                  onClick={onMatchesFilter}
+                  className={cn(
+                    "gap-2",
+                    searchParams.has("matches") &&
+                      "bg-yellow-500 hover:bg-yellow-600"
+                  )}
+                >
+                  <Star className="h-4 w-4" />
+                  Matches
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Show matched pets only</TooltipContent>
+            </Tooltip>
+          )}
         </div>
         <div className="w-96">
           <SearchPopover

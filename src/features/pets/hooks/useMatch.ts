@@ -13,7 +13,10 @@ export function useMatch() {
 
     setIsLoading(true);
     try {
-      navigate(`/${type}/match`);
+      navigate(`/${type}/match`, {
+        replace: true,
+        state: { key: Date.now() },
+      });
     } finally {
       setIsLoading(false);
     }

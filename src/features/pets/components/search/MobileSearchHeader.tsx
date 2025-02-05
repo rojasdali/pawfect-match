@@ -2,12 +2,13 @@ import { useState, useEffect } from "react";
 import { SortDropdown } from "./SortDropdown";
 import { FilterSheet } from "../FilterSheet";
 import { Button } from "@/components/ui/button";
-import { ChevronUp, ChevronDown } from "lucide-react";
+import { ChevronUp, ChevronDown, Star } from "lucide-react";
 import { QuickFilters } from "./QuickFilters";
 import { FilterPills } from "./FilterPills";
 import { type Filters } from "../../schemas/filters";
-import { type QuickFilterType } from "../../types";
+import { type QuickFilterType } from "../../types/index";
 import { SearchPopover } from "./SearchPopover";
+import { cn } from "@/lib/utils";
 
 interface MobileSearchHeaderProps {
   type: string;
@@ -28,6 +29,7 @@ interface MobileSearchHeaderProps {
     onSheetOpen?: () => void;
   };
   locateButton?: React.ReactNode;
+  onMatchesFilter?: () => void;
 }
 
 export function MobileSearchHeader({
@@ -41,6 +43,7 @@ export function MobileSearchHeader({
   isLoadingBreeds,
   filterSheetProps,
   locateButton,
+  onMatchesFilter,
 }: MobileSearchHeaderProps) {
   const [isFiltersExpanded, setIsFiltersExpanded] = useState(false);
   const [isFilterSheetOpen, setIsFilterSheetOpen] = useState(false);
@@ -92,8 +95,21 @@ export function MobileSearchHeader({
 
       {isFiltersExpanded && (
         <div className="flex flex-col gap-2">
-          <div className="flex justify-start">
+          <div className="flex items-center gap-2">
             <QuickFilters onQuickFilter={onQuickFilter} />
+            {onMatchesFilter && (
+              <Button
+                variant={searchParams.has("matches") ? "default" : "outline"}
+                size="icon"
+                onClick={onMatchesFilter}
+                className={cn(
+                  searchParams.has("matches") &&
+                    "bg-yellow-500 hover:bg-yellow-600"
+                )}
+              >
+                <Star className="h-4 w-4" />
+              </Button>
+            )}
           </div>
           <FilterPills
             searchParams={searchParams}

@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback, useMemo } from "react";
 import { PetCard } from "../components/PetCard";
-import { useNavigate, Navigate } from "react-router-dom";
+import { useNavigate, Navigate, useLocation } from "react-router-dom";
 import confetti from "canvas-confetti";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
@@ -15,6 +15,8 @@ function randomInRange(min: number, max: number) {
 
 export function MatchPage() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const type = location.pathname.split("/")[0] || "dogs";
   const [currentPetIndex, setCurrentPetIndex] = useState(0);
   const [showMatch, setShowMatch] = useState(false);
   const [favorites, setFavorites] = useState<Pet[]>([]);
@@ -22,11 +24,21 @@ export function MatchPage() {
   const [isLoading, setIsLoading] = useState(true);
 
   const favoriteIds = useMemo(
-    () => useFavoritesStore.getState().getFavoriteIds({ shuffle: true }),
-    []
+    () =>
+      useFavoritesStore.getState().getFavoriteIds({
+        shuffle: true,
+        excludeMatched: true,
+      }),
+    [location.state?.key]
   );
 
-  // Redirect if not enough favorites
+  useEffect(() => {
+    setCurrentPetIndex(0);
+    setShowMatch(false);
+    setIsLoading(true);
+  }, [location.state?.key]);
+
+  // Redirect if not enough unmatched favorites
   if (favoriteIds.length < 2) {
     return <Navigate to={ROUTES.HOME} replace />;
   }
@@ -37,14 +49,15 @@ export function MatchPage() {
       setFavorites(pets);
 
       const randomIndex = Math.floor(Math.random() * pets.length);
-      setMatchedPet(pets[randomIndex]);
+      const selectedPet = pets[randomIndex];
+      setMatchedPet(selectedPet);
 
       setIsLoading(false);
     } catch (error) {
       console.error("Error loading favorites:", error);
       setIsLoading(false);
     }
-  }, []);
+  }, [favoriteIds]);
 
   useEffect(() => {
     loadFavoritesAndFindMatch();
@@ -59,6 +72,10 @@ export function MatchPage() {
 
     const timeout = setTimeout(() => {
       setShowMatch(true);
+
+      if (matchedPet) {
+        useFavoritesStore.getState().setMatched(matchedPet.id, true);
+      }
 
       const count = 3;
       const defaults = {
@@ -82,11 +99,9 @@ export function MatchPage() {
 
       for (let i = 0; i < count; i++) {
         setTimeout(() => {
-          // Left side
           fire(0.25, {
             origin: { x: randomInRange(0.2, 0.3), y: 0.5 },
           });
-          // Right side
           fire(0.25, {
             origin: { x: randomInRange(0.7, 0.8), y: 0.5 },
           });
@@ -98,13 +113,22 @@ export function MatchPage() {
       clearInterval(interval);
       clearTimeout(timeout);
     };
-  }, [favorites.length, isLoading, showMatch]);
+  }, [favorites.length, isLoading, showMatch, matchedPet]);
 
   const BackButton = () => (
     <Button
       variant="ghost"
       size="sm"
-      onClick={() => navigate(ROUTES.HOME)}
+      onClick={() => {
+        if (location.pathname.includes("/match")) {
+          navigate(`/${type}/match`, {
+            replace: true,
+            state: { key: Date.now() },
+          });
+        } else {
+          navigate(ROUTES.HOME);
+        }
+      }}
       className="gap-2 mt-4"
     >
       <ArrowLeft className="h-4 w-4" />

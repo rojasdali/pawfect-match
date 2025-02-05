@@ -3,12 +3,16 @@ import { useMemo } from "react";
 import { MobileSearchHeader } from "@/features/pets/components/search/MobileSearchHeader";
 import { DesktopSearchHeader } from "@/features/pets/components/search/DesktopSearchHeader";
 import { useFilters } from "../hooks/useFilters";
+import { useLocation } from "react-router-dom";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface SearchHeaderProps {
   isSearching?: boolean;
 }
 
 export function SearchHeader({ isSearching }: SearchHeaderProps) {
+  const location = useLocation();
+  const isFavoritesPage = location.pathname === "/favorites";
   const {
     getDefaults,
     applyFilters,
@@ -20,6 +24,8 @@ export function SearchHeader({ isSearching }: SearchHeaderProps) {
   const type = searchParams.get("type") || "dogs";
 
   const { data: breeds, isLoading: isLoadingBreeds } = useBreeds(!isSearching);
+
+  const queryClient = useQueryClient();
 
   const handleSortChange = (value: string) => {
     const newParams = new URLSearchParams(searchParams);
@@ -35,6 +41,17 @@ export function SearchHeader({ isSearching }: SearchHeaderProps) {
       newParams.set("breed", breed);
     }
     setSearchParams(newParams);
+  };
+
+  const handleMatchesFilter = () => {
+    const newParams = new URLSearchParams(searchParams);
+    if (newParams.has("matches")) {
+      newParams.delete("matches");
+    } else {
+      newParams.set("matches", "true");
+    }
+    setSearchParams(newParams);
+    queryClient.invalidateQueries({ queryKey: ["favorites"] });
   };
 
   const filterSheetProps = useMemo(
@@ -58,6 +75,7 @@ export function SearchHeader({ isSearching }: SearchHeaderProps) {
         onQuickFilter={(type) => applyQuickFilter(type, breeds)}
         onRemoveFilter={removeFilter}
         onBreedChange={handleBreedChange}
+        onMatchesFilter={isFavoritesPage ? handleMatchesFilter : undefined}
         breeds={breeds ?? []}
         isLoadingBreeds={isLoadingBreeds}
         filterSheetProps={filterSheetProps}
@@ -69,6 +87,7 @@ export function SearchHeader({ isSearching }: SearchHeaderProps) {
         onQuickFilter={(type) => applyQuickFilter(type, breeds)}
         onRemoveFilter={removeFilter}
         onBreedChange={handleBreedChange}
+        onMatchesFilter={isFavoritesPage ? handleMatchesFilter : undefined}
         breeds={breeds ?? []}
         isLoadingBreeds={isLoadingBreeds}
         filterSheetProps={filterSheetProps}

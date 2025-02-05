@@ -2,17 +2,30 @@ import { PetGrid } from "../components/PetGrid";
 import { useFavoritesQuery } from "../hooks/useFavoritesQuery";
 import { useFavoritesStore } from "@/stores/favorites";
 import { Button } from "@/components/ui/button";
-import { Trash2, ArrowLeft } from "lucide-react";
+import { Trash2, ArrowLeft, Star } from "lucide-react";
 import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { ROUTES } from "@/config/routes";
 import { SearchHeader } from "../components/SearchHeader";
 
 export function FavoritesPage() {
-  const { pets, isLoading, hasNextPage, fetchNextPage, isFetchingNextPage } =
-    useFavoritesQuery();
+  const {
+    pets,
+    isLoading,
+    hasNextPage,
+    fetchNextPage,
+    isFetchingNextPage,
+    clearUnmatchedFromUI,
+    clearMatchesFromUI,
+  } = useFavoritesQuery();
+
   const totalFavorites = useFavoritesStore((state) => state.getFavoriteCount());
   const hasFavorites = totalFavorites > 0;
   const clearFavorites = useFavoritesStore((state) => state.clearFavorites);
+  const clearMatches = useFavoritesStore((state) => state.clearMatches);
+  const matchedCount = useFavoritesStore(
+    (state) => state.getMatchedIds().length
+  );
+  const hasMatches = matchedCount > 0;
   const location = useLocation();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -21,6 +34,16 @@ export function FavoritesPage() {
     searchParams.has("breed") ||
     searchParams.has("ageMin") ||
     searchParams.has("ageMax");
+
+  const handleClearFavorites = () => {
+    clearFavorites();
+    clearUnmatchedFromUI();
+  };
+
+  const handleClearMatches = () => {
+    clearMatches();
+    clearMatchesFromUI();
+  };
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -61,17 +84,30 @@ export function FavoritesPage() {
               "Your Favorite Pets"
             )}
           </h1>
-          {hasFavorites && (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={clearFavorites}
-              className="text-red-600 dark:text-red-400"
-            >
-              <Trash2 className="h-4 w-4 mr-2" />
-              Clear favorites
-            </Button>
-          )}
+          <div className="flex items-center gap-2">
+            {hasFavorites && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleClearFavorites}
+                className="text-red-600 dark:text-red-400"
+              >
+                <Trash2 className="h-4 w-4 mr-2" />
+                Clear favorites
+              </Button>
+            )}
+            {hasMatches && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleClearMatches}
+                className="text-yellow-600 dark:text-yellow-400"
+              >
+                <Star className="h-4 w-4 mr-2" />
+                Clear matches
+              </Button>
+            )}
+          </div>
         </div>
 
         {!hasFavorites ? (

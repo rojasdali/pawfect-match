@@ -1,6 +1,8 @@
 import { Button } from "./button";
 import { cn } from "@/lib/utils";
 import { PawPrint } from "lucide-react";
+import { useLocation } from "react-router-dom";
+import { LoadingSpinner } from "./loading-spinner";
 
 interface FloatingActionButtonProps {
   onClick: () => void;
@@ -13,6 +15,9 @@ export function FloatingActionButton({
   className,
   disabled,
 }: FloatingActionButtonProps) {
+  const location = useLocation();
+  const isMatchPage = location.pathname.includes("/match");
+
   return (
     <Button
       onClick={onClick}
@@ -34,10 +39,21 @@ export function FloatingActionButton({
         className
       )}
     >
-      <PawPrint className="h-3.5 w-3.5 lg:h-4 lg:w-4" />
-      <span className="flex-1">
-        {disabled ? "Finding match..." : "Find your pawfect match!"}
-      </span>
+      {disabled ? (
+        <>
+          <LoadingSpinner size="sm" />
+          <span className="flex-1">Finding match...</span>
+        </>
+      ) : (
+        <>
+          <PawPrint className="h-3.5 w-3.5 lg:h-4 lg:w-4" />
+          <span className="flex-1">
+            {isMatchPage
+              ? "Find another pawesome friend!"
+              : "Find your pawfect match!"}
+          </span>
+        </>
+      )}
     </Button>
   );
 }

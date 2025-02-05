@@ -1,6 +1,6 @@
 import { useAuthStore } from "@/stores/auth";
 import { useAuth } from "@/features/auth/hooks/useAuth";
-import { LogOut, Moon, PawPrint, Sun, User, Heart } from "lucide-react";
+import { LogOut, Moon, PawPrint, Sun, User, Heart, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useTheme } from "@/providers/ThemeProvider";
 import { useNavigate, useLocation } from "react-router-dom";
@@ -27,7 +27,11 @@ export function Navbar() {
   const { logout } = useAuth();
   const { theme, toggleTheme } = useTheme();
   const favoriteCount = useFavoritesStore((state) => state.getFavoriteCount());
+  const matchedCount = useFavoritesStore(
+    (state) => state.getMatchedIds().length
+  );
   const hasFavorites = favoriteCount > 0;
+  const hasMatches = matchedCount > 0;
 
   const handleHomeClick = () => {
     if (location.state?.from) {
@@ -84,6 +88,27 @@ export function Navbar() {
               <TooltipContent>See your favorite pets!</TooltipContent>
             </Tooltip>
           </TooltipProvider>
+
+          {hasMatches && (
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => navigate("/favorites?matches=true")}
+                    className="relative h-10 w-10"
+                  >
+                    <Star className="h-6 w-6 fill-yellow-400 text-yellow-400" />
+                    <span className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-yellow-400 text-xs font-semibold text-white flex items-center justify-center shadow-[0_0_4px_rgba(255,215,0,0.5)] ring-2 ring-white dark:ring-background">
+                      {matchedCount}
+                    </span>
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>See your matched pets!</TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          )}
 
           {user && (
             <DropdownMenu>
