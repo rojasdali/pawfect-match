@@ -3,7 +3,7 @@ import { useAuth } from "@/features/auth/hooks/useAuth";
 import { LogOut, Moon, PawPrint, Sun, User, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useTheme } from "@/providers/ThemeProvider";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useFavoritesStore } from "@/stores/favorites";
 import { cn } from "@/lib/utils";
 import {
@@ -18,20 +18,27 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { navigateWithSearchParams } from "@/lib/navigation";
+import { ROUTES } from "@/config/routes";
 
 export function Navbar() {
+  const navigate = useNavigate();
+  const location = useLocation();
   const user = useAuthStore((state) => state.user);
   const { logout } = useAuth();
   const { theme, toggleTheme } = useTheme();
-  const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
   const favoriteCount = useFavoritesStore((state) => state.getFavoriteCount());
   const hasFavorites = favoriteCount > 0;
 
   const handleHomeClick = () => {
-    const currentParams = new URLSearchParams(searchParams);
-    navigate(navigateWithSearchParams(currentParams));
+    if (location.pathname.includes("/search")) {
+      return;
+    }
+
+    if (location.state?.from) {
+      navigate(location.state.from);
+    } else {
+      navigate(ROUTES.HOME);
+    }
   };
 
   return (
@@ -54,7 +61,15 @@ export function Navbar() {
                 <Button
                   variant="ghost"
                   size="icon"
-                  onClick={() => navigate("/favorites")}
+                  onClick={() => {
+                    if (location.pathname.includes("/search")) {
+                      navigate("/favorites", {
+                        state: { from: location.pathname + location.search },
+                      });
+                    } else {
+                      navigate("/favorites");
+                    }
+                  }}
                   className="relative"
                 >
                   <Heart

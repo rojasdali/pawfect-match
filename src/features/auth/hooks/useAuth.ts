@@ -2,7 +2,6 @@ import { useAuthStore } from "@/stores/auth";
 import { authApi } from "../api/auth";
 import { useNavigate, useLocation } from "react-router-dom";
 import { ROUTES } from "@/config/routes";
-import { navigateWithSearchParams } from "@/lib/navigation";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 export function useAuth() {
@@ -16,8 +15,8 @@ export function useAuth() {
     mutationFn: authApi.login,
     onSuccess: (user) => {
       setUser(user);
-      const searchParams = new URLSearchParams(location.search);
-      navigate(navigateWithSearchParams(searchParams));
+      const returnTo = location.state?.from || ROUTES.HOME;
+      navigate(returnTo);
     },
   });
 
@@ -26,13 +25,17 @@ export function useAuth() {
     onSuccess: () => {
       clearUser();
       queryClient.clear();
-      navigate(ROUTES.LOGIN);
+      navigate(ROUTES.LOGIN, {
+        state: { from: location.pathname + location.search },
+      });
     },
     onError: (error) => {
       console.error("Logout failed, but continuing anyway:", error);
       clearUser();
       queryClient.clear();
-      navigate(ROUTES.LOGIN);
+      navigate(ROUTES.LOGIN, {
+        state: { from: location.pathname + location.search },
+      });
     },
   });
 

@@ -27,9 +27,8 @@ function ProtectedLayout() {
   if (!isAuthenticated) {
     return (
       <Navigate
-        to={`${ROUTES.LOGIN}${location.search}`}
-        state={{ from: location }}
-        replace
+        to={ROUTES.LOGIN}
+        state={{ from: location.pathname + location.search }}
       />
     );
   }
