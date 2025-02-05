@@ -1,13 +1,23 @@
 import { useParams, useSearchParams } from "react-router-dom";
 import { petsApi } from "../api/pets";
 import { useInfiniteQuery } from "@tanstack/react-query";
+import { useNearbyLocations } from "./useNearbyLocations";
 
 export function usePetSearch() {
   const { type = "dogs" } = useParams<{ type?: string }>();
   const [searchParams] = useSearchParams();
+  const nearbyLocations = useNearbyLocations();
+
+  const isDistanceFilterActive = searchParams.has("distance");
 
   const queryKey = ["pets", type, searchParams.toString()];
   const queryFn = async ({ pageParam = "0" }) => {
+    let zipCodes: string[] | undefined;
+    if (isDistanceFilterActive) {
+      const result = await nearbyLocations.refetch();
+      zipCodes = result.data;
+    }
+
     const searchResult = await petsApi.searchPets({
       type,
       pageParam,
@@ -21,6 +31,7 @@ export function usePetSearch() {
       ageMax: searchParams.get("ageMax")
         ? Number(searchParams.get("ageMax"))
         : undefined,
+      zipCodes,
     });
 
     const pets = await petsApi.getPetsByIds(type, searchResult.resultIds);

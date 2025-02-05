@@ -45,10 +45,12 @@ export function useFilters() {
     setSearchParams(newParams);
   };
 
-  const applyQuickFilter = (type: QuickFilterType, breeds?: string[]) => {
+  const applyQuickFilter = async (type: QuickFilterType, breeds?: string[]) => {
     const newParams = new URLSearchParams(searchParams);
 
-    if (type === "puppy") {
+    if (type === "nearby") {
+      newParams.set("distance", "25");
+    } else if (type === "puppy") {
       newParams.set("ageMin", "0");
       newParams.set("ageMax", "2");
     } else if (type === "senior") {
@@ -57,8 +59,6 @@ export function useFilters() {
     } else if (type === "random" && breeds?.length) {
       const randomBreed = breeds[Math.floor(Math.random() * breeds.length)];
       newParams.set("breed", randomBreed);
-    } else if (type === "nearby") {
-      newParams.set("distance", "25");
     }
 
     setSearchParams(newParams);

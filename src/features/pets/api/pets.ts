@@ -7,6 +7,7 @@ interface SearchParams {
   breeds?: string[];
   ageMin?: number;
   ageMax?: number;
+  zipCodes?: string[];
   zipCode?: string;
   sort?: string;
 }
@@ -16,6 +17,29 @@ interface SearchResponse {
   total: number;
   next: string | null;
   prev: string | null;
+}
+
+interface LocationSearchParams {
+  geoBoundingBox: {
+    bottom_left: { lat: number; lon: number };
+    top_right: { lat: number; lon: number };
+  };
+  size?: number;
+  from?: number;
+}
+
+interface Location {
+  zip_code: string;
+  latitude: number;
+  longitude: number;
+  city: string;
+  state: string;
+  county: string;
+}
+
+interface LocationSearchResponse {
+  results: Location[];
+  total: number;
 }
 
 const BATCH_SIZE = 25;
@@ -54,6 +78,13 @@ export const petsApi = {
 
   getBreeds: async (): Promise<string[]> => {
     const { data } = await apiClient.get<string[]>("/dogs/breeds");
+    return data;
+  },
+
+  searchLocations: async (
+    params: LocationSearchParams
+  ): Promise<LocationSearchResponse> => {
+    const { data } = await apiClient.post("/locations/search", params);
     return data;
   },
 };
