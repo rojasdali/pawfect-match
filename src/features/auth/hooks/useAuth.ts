@@ -1,22 +1,23 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useNavigate } from "react-router-dom";
-import { authApi } from "../api/auth";
 import { useAuthStore } from "@/stores/auth";
+import { authApi } from "../api/auth";
+import { useNavigate, useLocation } from "react-router-dom";
+import { ROUTES } from "@/config/routes";
+import { navigateWithSearchParams } from "@/lib/navigation";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 export function useAuth() {
-  const queryClient = useQueryClient();
   const navigate = useNavigate();
-  const { setUser, logout: clearUser } = useAuthStore();
+  const location = useLocation();
+  const queryClient = useQueryClient();
+  const setUser = useAuthStore((state) => state.setUser);
+  const clearUser = useAuthStore((state) => state.logout);
 
   const loginMutation = useMutation({
     mutationFn: authApi.login,
     onSuccess: (user) => {
       setUser(user);
-      queryClient.clear();
-      navigate("/search/dogs?sort=breed:asc");
-    },
-    onError: (error) => {
-      console.error("Login failed:", error);
+      const searchParams = new URLSearchParams(location.search);
+      navigate(navigateWithSearchParams(searchParams));
     },
   });
 
@@ -25,13 +26,13 @@ export function useAuth() {
     onSuccess: () => {
       clearUser();
       queryClient.clear();
-      navigate("/login");
+      navigate(ROUTES.LOGIN);
     },
     onError: (error) => {
-      console.error("Logout failed:", error);
+      console.error("Logout failed, but continuing anyway:", error);
       clearUser();
       queryClient.clear();
-      navigate("/login");
+      navigate(ROUTES.LOGIN);
     },
   });
 
@@ -39,5 +40,6 @@ export function useAuth() {
     login: loginMutation.mutate,
     logout: logoutMutation.mutate,
     isLoading: loginMutation.isPending || logoutMutation.isPending,
+    error: loginMutation.error,
   };
 }

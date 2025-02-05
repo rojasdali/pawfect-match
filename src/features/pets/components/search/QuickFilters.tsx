@@ -6,20 +6,17 @@ import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
+  TooltipProvider,
 } from "@/components/ui/tooltip";
 import { type QuickFilterType } from "../../types";
 
 interface QuickFiltersProps {
   onQuickFilter: (type: QuickFilterType) => void;
-  showTooltips?: boolean;
 }
 
-export function QuickFilters({
-  onQuickFilter,
-  showTooltips = false,
-}: QuickFiltersProps) {
-  if (showTooltips) {
-    return (
+export function QuickFilters({ onQuickFilter }: QuickFiltersProps) {
+  return (
+    <TooltipProvider>
       <div className="flex gap-2">
         <Tooltip>
           <TooltipTrigger asChild>
@@ -81,39 +78,6 @@ export function QuickFilters({
           </TooltipContent>
         </Tooltip>
       </div>
-    );
-  }
-
-  return (
-    <div className="flex gap-2">
-      <Button
-        variant="outline"
-        size="icon"
-        onClick={() => onQuickFilter("puppy")}
-      >
-        <PiDog className="h-4 w-4" />
-      </Button>
-      <Button
-        variant="outline"
-        size="icon"
-        onClick={() => onQuickFilter("senior")}
-      >
-        <GiSittingDog className="h-4 w-4" />
-      </Button>
-      <Button
-        variant="outline"
-        size="icon"
-        onClick={() => onQuickFilter("random")}
-      >
-        <Shuffle className="h-4 w-4" />
-      </Button>
-      <Button
-        variant="outline"
-        size="icon"
-        onClick={() => onQuickFilter("nearby")}
-      >
-        <MapPin className="h-4 w-4" />
-      </Button>
-    </div>
+    </TooltipProvider>
   );
 }

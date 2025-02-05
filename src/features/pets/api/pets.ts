@@ -19,22 +19,24 @@ interface SearchResponse {
   prev: string | null;
 }
 
-interface LocationSearchParams {
-  geoBoundingBox: {
-    bottom_left: { lat: number; lon: number };
-    top_right: { lat: number; lon: number };
-  };
-  size?: number;
-  from?: number;
-}
-
 interface Location {
+  city: string;
+  state: string;
   zip_code: string;
   latitude: number;
   longitude: number;
-  city: string;
-  state: string;
   county: string;
+}
+
+interface LocationSearchParams {
+  geoBoundingBox?: {
+    bottom_left: { lat: number; lon: number };
+    top_right: { lat: number; lon: number };
+  };
+  city?: string;
+  states?: string[];
+  zipCodes?: string[];
+  size?: number;
 }
 
 interface LocationSearchResponse {
@@ -84,7 +86,10 @@ export const petsApi = {
   searchLocations: async (
     params: LocationSearchParams
   ): Promise<LocationSearchResponse> => {
-    const { data } = await apiClient.post("/locations/search", params);
+    const { data } = await apiClient.post<LocationSearchResponse>(
+      "/locations/search",
+      params
+    );
     return data;
   },
 };

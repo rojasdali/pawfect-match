@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { PawPrint } from "lucide-react";
+import { LoadingSpinner } from "@/components/ui/loading-spinner";
 
 const loginSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
@@ -22,7 +23,7 @@ const loginSchema = z.object({
 type LoginForm = z.infer<typeof loginSchema>;
 
 export function LoginPage() {
-  const { login, isLoading: isLoadingAuth } = useAuth();
+  const { login, isLoading } = useAuth();
 
   const form = useForm<LoginForm>({
     resolver: zodResolver(loginSchema),
@@ -65,6 +66,7 @@ export function LoginPage() {
                       placeholder="Paw Parent"
                       className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 placeholder-gray-500 focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:placeholder-gray-400"
                       {...field}
+                      disabled={isLoading}
                     />
                   </FormControl>
                   <FormMessage className="mt-1 text-sm text-red-500" />
@@ -86,6 +88,7 @@ export function LoginPage() {
                       placeholder="furever.friend@email.com"
                       className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 placeholder-gray-500 focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:placeholder-gray-400"
                       {...field}
+                      disabled={isLoading}
                     />
                   </FormControl>
                   <FormMessage className="mt-1 text-sm text-red-500" />
@@ -95,10 +98,17 @@ export function LoginPage() {
 
             <Button
               type="submit"
-              disabled={isLoadingAuth}
+              disabled={isLoading}
               className="w-full bg-[#818CF8] hover:bg-[#818CF8]/90 text-white"
             >
-              {isLoadingAuth ? "Signing in..." : "Start finding pets!"}
+              {isLoading ? (
+                <span className="flex items-center justify-center gap-2">
+                  <LoadingSpinner size="sm" />
+                  Signing in...
+                </span>
+              ) : (
+                "Start finding pets!"
+              )}
             </Button>
           </form>
         </Form>

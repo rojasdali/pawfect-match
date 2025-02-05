@@ -25,6 +25,7 @@ interface DesktopSearchHeaderProps {
     onResetFilters: (key: string | string[]) => void;
     onSheetOpen?: () => void;
   };
+  locateButton?: React.ReactNode;
 }
 
 export function DesktopSearchHeader({
@@ -37,6 +38,7 @@ export function DesktopSearchHeader({
   breeds,
   isLoadingBreeds,
   filterSheetProps,
+  locateButton,
 }: DesktopSearchHeaderProps) {
   const [isFilterSheetOpen, setIsFilterSheetOpen] = useState(false);
 
@@ -49,7 +51,8 @@ export function DesktopSearchHeader({
             currentSort={searchParams.get("sort") || "breed:asc"}
             showText={true}
           />
-          <QuickFilters onQuickFilter={onQuickFilter} showTooltips={true} />
+          <QuickFilters onQuickFilter={onQuickFilter} />
+          {locateButton}
           <FilterSheet
             {...filterSheetProps}
             type={type}

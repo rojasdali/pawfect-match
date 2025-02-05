@@ -6,6 +6,7 @@ import { PetGridSkeleton } from "./PetGridSkeleton";
 import { useFavoritesStore } from "@/stores/favorites";
 import { GRID_COLUMNS } from "../constants";
 import { useIntersectionObserver } from "@/hooks/useIntersectionObserver";
+import { type Pet } from "../types";
 
 interface PetGridProps {
   pets: Pet[];

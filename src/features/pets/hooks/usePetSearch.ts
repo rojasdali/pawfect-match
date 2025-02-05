@@ -6,14 +6,29 @@ import { useNearbyLocations } from "./useNearbyLocations";
 export function usePetSearch() {
   const { type = "dogs" } = useParams<{ type?: string }>();
   const [searchParams] = useSearchParams();
-  const nearbyLocations = useNearbyLocations();
+
+  const locationParam = searchParams.get("location");
+  let location = null;
+  if (locationParam) {
+    try {
+      location = JSON.parse(locationParam);
+    } catch (e) {
+      console.error("Failed to parse location from URL", e);
+    }
+  }
+
+  const nearbyLocations = useNearbyLocations(
+    searchParams.get("distance") ? Number(searchParams.get("distance")) : 25,
+    location
+  );
 
   const isDistanceFilterActive = searchParams.has("distance");
 
   const queryKey = ["pets", type, searchParams.toString()];
   const queryFn = async ({ pageParam = "0" }) => {
     let zipCodes: string[] | undefined;
-    if (isDistanceFilterActive) {
+
+    if (location && isDistanceFilterActive) {
       const result = await nearbyLocations.refetch();
       zipCodes = result.data;
     }
@@ -40,6 +55,7 @@ export function usePetSearch() {
       nextCursor: searchResult.next
         ? String(Number(pageParam) + 25)
         : undefined,
+      total: searchResult.total,
     };
   };
 
@@ -56,5 +72,6 @@ export function usePetSearch() {
   return {
     ...query,
     pets: query.data?.pages.flatMap((page) => page.pets) ?? [],
+    total: query.data?.pages[0]?.total ?? 0,
   };
 }

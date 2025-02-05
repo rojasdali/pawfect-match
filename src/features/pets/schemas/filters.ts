@@ -9,6 +9,17 @@ export const filterSchema = z
       message: "Max age must be positive",
     }),
     breed: z.string(),
+    location: z
+      .object({
+        city: z.string(),
+        state: z.string(),
+        zip_code: z.string(),
+        display: z.string(),
+        latitude: z.number(),
+        longitude: z.number(),
+      })
+      .nullable()
+      .optional(),
     distance: z
       .number()
       .nullable()
@@ -27,6 +38,18 @@ export const filterSchema = z
     {
       message: "Max age must be greater than min age",
       path: ["maxAge"],
+    }
+  )
+  .refine(
+    (data) => {
+      if (data.location) {
+        return data.distance !== null;
+      }
+      return true;
+    },
+    {
+      message: "Distance is required when location is selected",
+      path: ["distance"],
     }
   );
 

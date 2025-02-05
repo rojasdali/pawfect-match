@@ -27,6 +27,7 @@ interface MobileSearchHeaderProps {
     onResetFilters: (key: string | string[]) => void;
     onSheetOpen?: () => void;
   };
+  locateButton?: React.ReactNode;
 }
 
 export function MobileSearchHeader({
@@ -39,6 +40,7 @@ export function MobileSearchHeader({
   breeds,
   isLoadingBreeds,
   filterSheetProps,
+  locateButton,
 }: MobileSearchHeaderProps) {
   const [isFiltersExpanded, setIsFiltersExpanded] = useState(false);
   const [isFilterSheetOpen, setIsFilterSheetOpen] = useState(false);
@@ -65,6 +67,7 @@ export function MobileSearchHeader({
           onSortChange={onSortChange}
           currentSort={searchParams.get("sort") || "breed:asc"}
         />
+        {locateButton}
         <FilterSheet
           {...filterSheetProps}
           type={type}
@@ -90,7 +93,7 @@ export function MobileSearchHeader({
       {isFiltersExpanded && (
         <div className="flex flex-col gap-2">
           <div className="flex justify-start">
-            <QuickFilters onQuickFilter={onQuickFilter} showTooltips={false} />
+            <QuickFilters onQuickFilter={onQuickFilter} />
           </div>
           <FilterPills
             searchParams={searchParams}

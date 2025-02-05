@@ -5,24 +5,12 @@ interface UseBreedsOptions {
   enabled?: boolean;
   staleTime?: number;
   gcTime?: number;
-  refetchOnMount?: boolean;
-  refetchOnWindowFocus?: boolean;
 }
 
-export function useBreeds({
-  enabled = false,
-  staleTime = Infinity,
-  gcTime = 1000 * 60 * 30,
-  refetchOnMount = false,
-  refetchOnWindowFocus = false,
-}: UseBreedsOptions = {}) {
+export function useBreeds(options: UseBreedsOptions = {}) {
   return useQuery({
     queryKey: ["breeds"],
     queryFn: () => petsApi.getBreeds(),
-    enabled,
-    staleTime,
-    gcTime,
-    refetchOnMount,
-    refetchOnWindowFocus,
+    ...options,
   });
 }

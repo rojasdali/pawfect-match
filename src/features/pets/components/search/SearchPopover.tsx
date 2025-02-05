@@ -1,13 +1,14 @@
 import { useState, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Check } from "lucide-react";
+import { Check, ChevronsUpDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { LoadingSpinner } from "@/components/ui/loading-spinner";
 
 interface SearchPopoverProps {
   options: string[];
@@ -53,6 +54,7 @@ export function SearchPopover({
           className="w-full justify-between"
         >
           {triggerText ?? displayValue ?? placeholder}
+          <ChevronsUpDown className="ml-2 h-3 w-3 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
       <PopoverContent
@@ -63,6 +65,9 @@ export function SearchPopover({
           } as React.CSSProperties
         }
         align="start"
+        side="bottom"
+        sideOffset={4}
+        alignOffset={0}
       >
         <div className="p-2 border-b">
           <Input
@@ -81,7 +86,7 @@ export function SearchPopover({
         >
           {isLoading ? (
             <div className="p-8 text-center">
-              <div className="animate-spin inline-block text-3xl">🐶</div>
+              <LoadingSpinner size="lg" />
               <p className="text-sm text-muted-foreground mt-2">
                 Fetching breeds...
               </p>
