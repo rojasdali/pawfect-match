@@ -4,6 +4,7 @@ import { useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
 import { useLocation, useSearchParams } from "react-router-dom";
 import { type Pet } from "../types";
 import { useState, useMemo } from "react";
+import { useOptimisticUpdates } from "./useOptimisticUpdates";
 
 interface QueryData {
   pages: Array<{
@@ -34,6 +35,8 @@ export function useFavoritesQuery() {
   const queryClient = useQueryClient();
 
   const [totalFilteredCount, setTotalFilteredCount] = useState(0);
+
+  const { optimisticallyRemovePet } = useOptimisticUpdates();
 
   const queryFn = async ({ pageParam = "0" }) => {
     const start = Number(pageParam) * 25;
@@ -106,17 +109,8 @@ export function useFavoritesQuery() {
     gcTime: 1000 * 60 * 30,
   });
 
-  const optimisticallyRemovePet = (petId: string) => {
-    queryClient.setQueryData<QueryData>(queryKey, (oldData) => {
-      if (!oldData) return oldData;
-      return {
-        ...oldData,
-        pages: oldData.pages.map((page) => ({
-          ...page,
-          pets: page.pets.filter((pet) => pet.id !== petId),
-        })),
-      };
-    });
+  const optimisticallyRemovePetFromUI = (petId: string) => {
+    optimisticallyRemovePet(queryKey, petId);
   };
 
   const clearUnmatchedFromUI = () => {
@@ -155,7 +149,7 @@ export function useFavoritesQuery() {
     ...query,
     pets: query.data?.pages.flatMap((page) => page.pets) ?? [],
     totalFilteredCount,
-    optimisticallyRemovePet,
+    optimisticallyRemovePet: optimisticallyRemovePetFromUI,
     clearUnmatchedFromUI,
     clearMatchesFromUI,
   };

@@ -1,19 +1,24 @@
 import { useFavoritesStore } from "@/stores/favorites";
-import { useFavoritesQuery } from "./useFavoritesQuery";
-import { useLocation } from "react-router-dom";
+import { useLocation, useSearchParams } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
+import { useOptimisticUpdates } from "./useOptimisticUpdates";
 
 export function usePetFavorites() {
   const { addFavorite, removeFavorite, isFavorite } = useFavoritesStore();
-  const { optimisticallyRemovePet } = useFavoritesQuery();
   const location = useLocation();
+  const [searchParams] = useSearchParams();
   const isOnFavoritesPage = location.pathname === "/favorites";
+  const isViewingMatches = searchParams.has("matches");
   const queryClient = useQueryClient();
+  const { optimisticallyRemovePet } = useOptimisticUpdates();
 
   const toggleFavorite = (petId: string) => {
     if (isFavorite(petId)) {
       if (isOnFavoritesPage) {
-        optimisticallyRemovePet(petId);
+        optimisticallyRemovePet(
+          ["favorites", searchParams.toString(), isViewingMatches],
+          petId
+        );
         removeFavorite(petId);
         return;
       }
