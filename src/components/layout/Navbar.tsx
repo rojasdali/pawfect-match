@@ -3,12 +3,6 @@ import { useAuth } from "@/features/auth/hooks/useAuth";
 import { LogOut, Moon, PawPrint, Sun, User, Heart, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useTheme } from "@/providers/ThemeProvider";
-import {
-  useNavigate,
-  useLocation,
-  useMatch,
-  useParams,
-} from "react-router-dom";
 import { useFavoritesStore } from "@/stores/favorites";
 import { cn } from "@/lib/utils";
 import {

@@ -4,7 +4,6 @@ import { MobileSearchHeader } from "@/features/pets/components/search/MobileSear
 import { DesktopSearchHeader } from "@/features/pets/components/search/DesktopSearchHeader";
 import { useFilters } from "../hooks/useFilters";
 import { useLocation } from "react-router-dom";
-import { useQueryClient } from "@tanstack/react-query";
 
 interface SearchHeaderProps {
   isSearching?: boolean;
@@ -24,8 +23,6 @@ export function SearchHeader({ isSearching }: SearchHeaderProps) {
   const type = searchParams.get("type") || "dogs";
 
   const { data: breeds, isLoading: isLoadingBreeds } = useBreeds(!isSearching);
-
-  const queryClient = useQueryClient();
 
   const handleSortChange = (value: string) => {
     const newParams = new URLSearchParams(searchParams);

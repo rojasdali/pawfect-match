@@ -30,13 +30,14 @@ export function useSearchStateNavigation() {
     saveSearchState();
 
     const fromSearchPage = location.pathname.includes("/search");
-    const state = fromSearchPage
-      ? { from: location.pathname + location.search, ...options?.state }
-      : options?.state;
+    const state = {
+      ...(fromSearchPage ? { from: location.pathname + location.search } : {}),
+      ...options?.state,
+    };
 
     navigate(to, {
       replace: options?.replace,
-      state,
+      state: Object.keys(state).length > 0 ? state : undefined,
     });
   };
 
