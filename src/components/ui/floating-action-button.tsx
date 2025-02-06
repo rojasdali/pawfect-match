@@ -5,21 +5,19 @@ import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { LoadingSpinner } from "./loading-spinner";
 
 interface FloatingActionButtonProps {
-  onClick: () => void;
   className?: string;
   disabled?: boolean;
   isLoading?: boolean;
 }
 
 export function FloatingActionButton({
-  onClick,
   className,
   disabled,
   isLoading,
 }: FloatingActionButtonProps) {
   const location = useLocation();
   const navigate = useNavigate();
-  const { type = "dogs" } = useParams(); // Get type from URL params with default
+  const { type = "dogs" } = useParams();
   const isMatchPage = location.pathname.includes("/match");
 
   const handleClick = () => {
