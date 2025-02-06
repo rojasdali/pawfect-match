@@ -9,14 +9,12 @@ interface FloatingActionButtonProps {
   className?: string;
   disabled?: boolean;
   isLoading?: boolean;
-  onClick?: () => void;
 }
 
 export function FloatingActionButton({
   className,
   disabled,
   isLoading,
-  onClick,
 }: FloatingActionButtonProps) {
   const location = useLocation();
   const { type = "dogs" } = useParams();
