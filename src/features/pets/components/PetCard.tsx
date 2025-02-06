@@ -5,7 +5,7 @@ import { PetCardProps } from "@/features/pets/types/index";
 import { useFavoritesStore } from "@/stores/favorites";
 import { cn } from "@/lib/utils";
 import { useLocation } from "react-router-dom";
-import { useFavoritesQuery } from "@/features/pets/hooks/useFavoritesQuery";
+import { usePetFavorites } from "../hooks/usePetFavorites";
 
 function formatAge(age: number): string {
   if (age === 0) return "< 1 year";
@@ -13,25 +13,37 @@ function formatAge(age: number): string {
   return `${age} years old`;
 }
 
-export function PetCard({ id, name, breed, age, img, zip_code }: PetCardProps) {
+export function PetCard({
+  id,
+  name,
+  breed,
+  age,
+  img,
+  zip_code,
+  onRemove,
+}: PetCardProps & { onRemove?: (id: string) => void }) {
   const location = useLocation();
   const isMatchPage = location.pathname.includes("/match");
-  const isFavorite = useFavoritesStore((state) => state.isFavorite(id));
+  const isViewingMatches =
+    location.pathname === "/favorites" &&
+    location.search.includes("matches=true");
+  const { toggleFavorite, isFavorite } = usePetFavorites();
   const isMatched = useFavoritesStore((state) => state.isMatched(id));
-  const addFavorite = useFavoritesStore((state) => state.addFavorite);
-  const removeFavorite = useFavoritesStore((state) => state.removeFavorite);
   const setMatched = useFavoritesStore((state) => state.setMatched);
-
-  const { removePet } = useFavoritesQuery();
 
   const handleAction = () => {
     if (isMatched) {
       setMatched(id, false);
-    } else if (isFavorite) {
-      removeFavorite(id);
-      removePet(id);
+      if (isViewingMatches && onRemove) {
+        onRemove(id);
+      }
+    } else if (isFavorite(id)) {
+      if (location.pathname === "/favorites" && onRemove) {
+        onRemove(id);
+      }
+      toggleFavorite(id);
     } else {
-      addFavorite(id);
+      toggleFavorite(id);
     }
   };
 
@@ -82,7 +94,7 @@ export function PetCard({ id, name, breed, age, img, zip_code }: PetCardProps) {
           aria-label={
             isMatched
               ? `Remove ${name} from matches`
-              : isFavorite
+              : isFavorite(id)
               ? `Remove ${name} from favorites`
               : `Add ${name} to favorites`
           }
@@ -99,7 +111,7 @@ export function PetCard({ id, name, breed, age, img, zip_code }: PetCardProps) {
             <Heart
               className={cn(
                 "h-5 w-5 transition-colors",
-                isFavorite
+                isFavorite(id)
                   ? "fill-red-500 text-red-500"
                   : "text-gray-500 group-hover/action:fill-red-500 group-hover/action:text-red-500"
               )}

@@ -51,7 +51,6 @@ export function SearchHeader({ isSearching }: SearchHeaderProps) {
       newParams.set("matches", "true");
     }
     setSearchParams(newParams);
-    queryClient.invalidateQueries({ queryKey: ["favorites"] });
   };
 
   const filterSheetProps = useMemo(

@@ -10,6 +10,7 @@ import { type Pet } from "@/types/pet";
 import { petsApi } from "../api/pets";
 import { MatchAnimation } from "../components/MatchAnimation";
 import { useSearchStateNavigation } from "@/hooks/useSearchStateNavigation";
+import { useQueryClient } from "@tanstack/react-query";
 
 function randomInRange(min: number, max: number) {
   return Math.random() * (max - min) + min;
@@ -22,6 +23,13 @@ export function MatchPage() {
   const [matchedPet, setMatchedPet] = useState<Pet | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const { navigateBack } = useSearchStateNavigation();
+  const queryClient = useQueryClient();
+
+  useEffect(() => {
+    setShowMatch(false);
+    setMatchedPet(null);
+    setIsLoading(true);
+  }, [location.state?.key]);
 
   const favoriteIds = useMemo(
     () =>
@@ -31,10 +39,6 @@ export function MatchPage() {
       }),
     [location.state?.key]
   );
-
-  useEffect(() => {
-    setIsLoading(true);
-  }, [location.state?.key]);
 
   // Redirect if not enough unmatched favorites
   if (favoriteIds.length < 2) {
@@ -49,6 +53,9 @@ export function MatchPage() {
       const randomIndex = Math.floor(Math.random() * pets.length);
       const selectedPet = pets[randomIndex];
       setMatchedPet(selectedPet);
+
+      // Refetch favorites after finding a match
+      queryClient.invalidateQueries({ queryKey: ["favorites"] });
 
       setIsLoading(false);
     } catch (error) {
