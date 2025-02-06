@@ -3,7 +3,7 @@ import { FilterSheet } from "../FilterSheet";
 import { QuickFilters } from "./QuickFilters";
 import { FilterPills } from "./FilterPills";
 import { type Filters } from "../../schemas/filters";
-import { type QuickFilterType } from "../../types";
+import { type QuickFilterType } from "@/features/pets/types/index";
 import { useState } from "react";
 import { SearchPopover } from "./SearchPopover";
 import { Star } from "lucide-react";
