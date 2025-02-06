@@ -51,6 +51,5 @@ export function useNearbyLocations(
     },
     enabled: false,
     staleTime: 1000 * 60 * 5,
-    retry: 1,
   });
 }
