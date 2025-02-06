@@ -6,6 +6,7 @@ import { Trash2, ArrowLeft, Star } from "lucide-react";
 import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { ROUTES } from "@/config/routes";
 import { SearchHeader } from "../components/SearchHeader";
+import { useMemo } from "react";
 
 export function FavoritesPage() {
   const {
@@ -24,13 +25,9 @@ export function FavoritesPage() {
   const hasFavorites = totalFavorites > 0;
   const clearFavorites = useFavoritesStore((state) => state.clearFavorites);
   const clearMatches = useFavoritesStore((state) => state.clearMatches);
-  const matchedCount = useFavoritesStore(
-    (state) => state.getMatchedIds().length
-  );
-  const hasMatches = matchedCount > 0;
   const location = useLocation();
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const hasActiveFilters =
     searchParams.has("breed") ||
@@ -40,6 +37,35 @@ export function FavoritesPage() {
   const unmatchedCount = useFavoritesStore((state) => state.getFavoriteCount());
   const hasUnmatchedFavorites = unmatchedCount > 0;
 
+  const matchedCount = useFavoritesStore(
+    (state) => state.getMatchedIds().length
+  );
+  const hasMatches = matchedCount > 0;
+
+  const isViewingMatches = searchParams.has("matches");
+  const title = useMemo(() => {
+    if (!hasFavorites) return "Your Favorite Pets";
+    if (isLoading) return "Loading favorites...";
+
+    if (isViewingMatches) {
+      return `Your ${matchedCount} matched pets!`;
+    }
+
+    if (hasActiveFilters) {
+      return `${pets.length} of ${unmatchedCount} favorite pets`;
+    }
+
+    return `Your ${unmatchedCount} favorite pets!`;
+  }, [
+    hasFavorites,
+    isLoading,
+    isViewingMatches,
+    matchedCount,
+    unmatchedCount,
+    pets.length,
+    hasActiveFilters,
+  ]);
+
   const handleClearFavorites = () => {
     clearFavorites();
     clearUnmatchedFromUI();
@@ -48,6 +74,12 @@ export function FavoritesPage() {
   const handleClearMatches = () => {
     clearMatches();
     clearMatchesFromUI();
+
+    // Remove matches filter from URL if it exists
+    if (searchParams.has("matches")) {
+      searchParams.delete("matches");
+      setSearchParams(searchParams);
+    }
   };
 
   return (
@@ -74,21 +106,7 @@ export function FavoritesPage() {
 
       <main className="container py-6">
         <div className="flex items-center justify-between mb-6">
-          <h1 className="text-2xl font-bold">
-            {hasFavorites && isLoading ? (
-              "Loading favorites..."
-            ) : hasFavorites ? (
-              hasActiveFilters ? (
-                <>
-                  {pets.length} of {totalFavorites} favorite pets
-                </>
-              ) : (
-                <>Your {totalFavorites} favorite pets!</>
-              )
-            ) : (
-              "Your Favorite Pets"
-            )}
-          </h1>
+          <h1 className="text-2xl font-bold">{title}</h1>
           <div className="flex items-center gap-2">
             {hasUnmatchedFavorites && (
               <Button
