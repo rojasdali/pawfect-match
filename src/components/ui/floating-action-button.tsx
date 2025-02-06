@@ -1,8 +1,9 @@
 import { Button } from "./button";
 import { cn } from "@/lib/utils";
 import { PawPrint } from "lucide-react";
-import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { useLocation, useParams } from "react-router-dom";
 import { LoadingSpinner } from "./loading-spinner";
+import { useSearchStateNavigation } from "@/hooks/useSearchStateNavigation";
 
 interface FloatingActionButtonProps {
   className?: string;
@@ -16,14 +17,12 @@ export function FloatingActionButton({
   isLoading,
 }: FloatingActionButtonProps) {
   const location = useLocation();
-  const navigate = useNavigate();
   const { type = "dogs" } = useParams();
   const isMatchPage = location.pathname.includes("/match");
+  const { navigatePreservingSearch } = useSearchStateNavigation();
 
   const handleClick = () => {
-    navigate(`/${type}/match`, {
-      state: { from: location.pathname + location.search },
-    });
+    navigatePreservingSearch(`/${type}/match`);
   };
 
   return (

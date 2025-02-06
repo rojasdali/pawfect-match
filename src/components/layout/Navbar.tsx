@@ -23,12 +23,9 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { ROUTES } from "@/config/routes";
+import { useSearchStateNavigation } from "@/hooks/useSearchStateNavigation";
 
 export function Navbar() {
-  const navigate = useNavigate();
-  const location = useLocation();
-  const params = useParams();
   const user = useAuthStore((state) => state.user);
   const { logout } = useAuth();
   const { theme, toggleTheme } = useTheme();
@@ -38,22 +35,18 @@ export function Navbar() {
   );
   const hasFavorites = favoriteCount > 0;
   const hasMatches = matchedCount > 0;
-  const searchMatch = useMatch("/search/:type");
-  const type = params.type || searchMatch?.params.type || "dogs";
+  const { navigatePreservingSearch, navigateBack } = useSearchStateNavigation();
 
   const handleHomeClick = () => {
-    if (location.key !== "default") {
-      navigate(-1);
-    } else {
-      navigate(ROUTES.HOME);
-    }
+    navigateBack();
   };
 
-  const handleMatchClick = () => {
-    navigate(`/${type}/match`, {
-      relative: "route",
-      state: { from: location.pathname + location.search },
-    });
+  const handleMatchesClick = () => {
+    navigatePreservingSearch("/favorites?matches=true", { replace: true });
+  };
+
+  const handleFavoritesClick = () => {
+    navigatePreservingSearch("/favorites");
   };
 
   return (
@@ -76,15 +69,7 @@ export function Navbar() {
                 <Button
                   variant="ghost"
                   size="icon"
-                  onClick={() => {
-                    if (location.pathname.includes("/search")) {
-                      navigate("/favorites", {
-                        state: { from: location.pathname + location.search },
-                      });
-                    } else {
-                      navigate("/favorites");
-                    }
-                  }}
+                  onClick={handleFavoritesClick}
                   className="relative h-10 w-10"
                 >
                   <Heart
@@ -111,7 +96,7 @@ export function Navbar() {
                   <Button
                     variant="ghost"
                     size="icon"
-                    onClick={handleMatchClick}
+                    onClick={handleMatchesClick}
                     className="relative h-10 w-10"
                   >
                     <Star className="h-6 w-6 fill-yellow-400 text-yellow-400" />

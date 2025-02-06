@@ -21,7 +21,6 @@ export const useTheme = create<ThemeState>()(
   )
 );
 
-// Apply theme on mount
 if (typeof window !== "undefined") {
   const theme = useTheme.getState().theme;
   document.documentElement.classList.toggle("dark", theme === "dark");

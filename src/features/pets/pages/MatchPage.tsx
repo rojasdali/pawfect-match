@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback, useMemo } from "react";
 import { PetCard } from "../components/PetCard";
-import { useNavigate, Navigate, useLocation } from "react-router-dom";
+import { Navigate, useLocation } from "react-router-dom";
 import confetti from "canvas-confetti";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
@@ -9,19 +9,19 @@ import { useFavoritesStore } from "@/stores/favorites";
 import { type Pet } from "@/types/pet";
 import { petsApi } from "../api/pets";
 import { MatchAnimation } from "../components/MatchAnimation";
+import { useSearchStateNavigation } from "@/hooks/useSearchStateNavigation";
 
 function randomInRange(min: number, max: number) {
   return Math.random() * (max - min) + min;
 }
 
 export function MatchPage() {
-  const navigate = useNavigate();
   const location = useLocation();
-  const type = location.pathname.split("/")[0] || "dogs";
   const [showMatch, setShowMatch] = useState(false);
   const [favorites, setFavorites] = useState<Pet[]>([]);
   const [matchedPet, setMatchedPet] = useState<Pet | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const { navigateBack } = useSearchStateNavigation();
 
   const favoriteIds = useMemo(
     () =>
@@ -96,31 +96,23 @@ export function MatchPage() {
     }
   }, [matchedPet]);
 
-  const BackButton = () => (
-    <Button
-      variant="ghost"
-      size="sm"
-      onClick={() => {
-        if (location.state?.from) {
-          navigate(location.state.from, { replace: true });
-        } else {
-          navigate(`/search/${type}`, {
-            replace: true,
-          });
-        }
-      }}
-      className="gap-2 mt-4"
-    >
-      <ArrowLeft className="h-4 w-4" />
-      Find more furry friends!
-    </Button>
-  );
+  const handleBack = () => {
+    navigateBack();
+  };
 
   if (isLoading || !matchedPet) {
     return (
       <div className="min-h-screen bg-background text-foreground">
         <div className="container">
-          <BackButton />
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={handleBack}
+            className="gap-2 mt-4"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Find more furry friends!
+          </Button>
         </div>
         <main className="container py-2">
           <div className="max-w-md mx-auto">
@@ -136,7 +128,15 @@ export function MatchPage() {
   return (
     <div className="min-h-screen bg-background text-foreground">
       <div className="container">
-        <BackButton />
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={handleBack}
+          className="gap-2 mt-4"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          Find more furry friends!
+        </Button>
       </div>
 
       <main className="container py-2">

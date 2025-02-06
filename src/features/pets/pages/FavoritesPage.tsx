@@ -3,10 +3,10 @@ import { useFavoritesQuery } from "../hooks/useFavoritesQuery";
 import { useFavoritesStore } from "@/stores/favorites";
 import { Button } from "@/components/ui/button";
 import { Trash2, ArrowLeft, Star } from "lucide-react";
-import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
-import { ROUTES } from "@/config/routes";
+import { useSearchParams } from "react-router-dom";
 import { SearchHeader } from "../components/SearchHeader";
 import { useMemo } from "react";
+import { useSearchStateNavigation } from "@/hooks/useSearchStateNavigation";
 
 export function FavoritesPage() {
   const {
@@ -25,9 +25,9 @@ export function FavoritesPage() {
   const hasFavorites = totalFavorites > 0;
   const clearFavorites = useFavoritesStore((state) => state.clearFavorites);
   const clearMatches = useFavoritesStore((state) => state.clearMatches);
-  const location = useLocation();
-  const navigate = useNavigate();
+
   const [searchParams, setSearchParams] = useSearchParams();
+  const { navigateBack } = useSearchStateNavigation();
 
   const hasActiveFilters =
     searchParams.has("breed") ||
@@ -75,11 +75,14 @@ export function FavoritesPage() {
     clearMatches();
     clearMatchesFromUI();
 
-    // Remove matches filter from URL if it exists
     if (searchParams.has("matches")) {
       searchParams.delete("matches");
       setSearchParams(searchParams);
     }
+  };
+
+  const handleBackClick = () => {
+    navigateBack();
   };
 
   return (
@@ -88,13 +91,7 @@ export function FavoritesPage() {
         <Button
           variant="ghost"
           size="sm"
-          onClick={() => {
-            if (location.state?.from) {
-              navigate(location.state.from);
-            } else {
-              navigate(ROUTES.HOME);
-            }
-          }}
+          onClick={handleBackClick}
           className="gap-2 mt-4"
         >
           <ArrowLeft className="h-4 w-4" />

@@ -147,7 +147,6 @@ export const useFavoritesStore = create<FavoritesState>()(
 
         let ids = favorites.map((fav) => fav.id);
 
-        // Shuffle if requested
         if (options.shuffle) {
           const shuffled = [...ids];
           for (let i = shuffled.length - 1; i > 0; i--) {

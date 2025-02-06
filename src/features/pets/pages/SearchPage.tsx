@@ -1,11 +1,15 @@
 import { PetGrid } from "../components/PetGrid";
 import { SearchHeader } from "../components/SearchHeader";
-import { useParams } from "react-router-dom";
+import { useParams, useLocation } from "react-router-dom";
 import { usePetSearch } from "../hooks/usePetSearch";
 import { useFilters } from "../hooks/useFilters";
+import { useSearchStateNavigation } from "@/hooks/useSearchStateNavigation";
+import { useEffect } from "react";
 
 export function SearchPage() {
   const { type = "dogs" } = useParams<{ type?: string }>();
+  const location = useLocation();
+  const { saveSearchState } = useSearchStateNavigation();
   const { isLoadingLocation } = useFilters();
   const {
     data,
@@ -20,6 +24,10 @@ export function SearchPage() {
   const isLoading = isPetsLoading || isLoadingLocation;
 
   const pets = data?.pages.flatMap((page) => page.pets) ?? [];
+
+  useEffect(() => {
+    saveSearchState();
+  }, [location.pathname, location.search]);
 
   return (
     <div className="min-h-screen bg-background text-foreground">
