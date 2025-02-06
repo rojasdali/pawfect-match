@@ -17,6 +17,7 @@ export function FavoritesPage() {
     isFetchingNextPage,
     clearUnmatchedFromUI,
     clearMatchesFromUI,
+    totalFilteredCount,
   } = useFavoritesQuery();
 
   const totalFavorites = useFavoritesStore((state) =>
@@ -45,24 +46,29 @@ export function FavoritesPage() {
   const isViewingMatches = searchParams.has("matches");
   const title = useMemo(() => {
     if (!hasFavorites) return "Your Favorite Pets";
-    if (isLoading) return "Loading favorites...";
+    if (isLoading) {
+      return isViewingMatches ? "Loading matches..." : "Loading favorites...";
+    }
 
     if (isViewingMatches) {
-      return `Your ${matchedCount} matched pets!`;
+      if (hasActiveFilters) {
+        return `${totalFilteredCount} of ${matchedCount} Matches`;
+      }
+      return `${matchedCount} Matches`;
     }
 
     if (hasActiveFilters) {
-      return `${pets.length} of ${unmatchedCount} favorite pets`;
+      return `${totalFilteredCount} of ${totalFavorites} Favorites`;
     }
 
-    return `Your ${unmatchedCount} favorite pets!`;
+    return `${totalFavorites} Favorites`;
   }, [
     hasFavorites,
     isLoading,
     isViewingMatches,
     matchedCount,
-    unmatchedCount,
-    pets.length,
+    totalFavorites,
+    totalFilteredCount,
     hasActiveFilters,
   ]);
 
@@ -105,7 +111,7 @@ export function FavoritesPage() {
         <div className="flex items-center justify-between mb-6">
           <h1 className="text-2xl font-bold">{title}</h1>
           <div className="flex items-center gap-2">
-            {hasUnmatchedFavorites && (
+            {hasUnmatchedFavorites && !isViewingMatches && (
               <Button
                 variant="outline"
                 size="sm"
@@ -124,9 +130,10 @@ export function FavoritesPage() {
                 onClick={handleClearMatches}
                 className="text-yellow-600 dark:text-yellow-400 h-8 text-xs sm:h-9 sm:text-sm"
               >
-                <Star className="h-4 w-4 mr-1 sm:mr-2" />
-                <span className="hidden sm:inline">Clear </span>
-                matches
+                <span className="sm:inline">
+                  Clear <Star className="inline-block h-4 w-4 -mt-0.5" />
+                  's
+                </span>
               </Button>
             )}
           </div>

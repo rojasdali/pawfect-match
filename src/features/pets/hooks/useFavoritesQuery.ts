@@ -3,25 +3,34 @@ import { useFavoritesStore } from "@/stores/favorites";
 import { useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
 import { useLocation, useSearchParams } from "react-router-dom";
 import { type Pet } from "../types";
+import { useState } from "react";
 
 interface QueryData {
   pages: Array<{
     pets: Pet[];
     nextCursor?: string;
+    totalFilteredCount: number;
   }>;
 }
 
 export function useFavoritesQuery() {
-  const favoriteIds = useFavoritesStore((state) =>
-    state.getFavoriteIds({ excludeMatched: false })
-  );
-  const hasFavorites = favoriteIds.length > 0;
-  const queryClient = useQueryClient();
   const location = useLocation();
   const [searchParams] = useSearchParams();
   const isOnFavoritesPage = location.pathname === "/favorites";
+  const isViewingMatches = searchParams.has("matches");
 
-  const queryKey = ["favorites", searchParams.toString(), favoriteIds];
+  const favoriteIds = useFavoritesStore((state) =>
+    isViewingMatches
+      ? state.getMatchedIds()
+      : state.getFavoriteIds({ excludeMatched: false })
+  );
+
+  const hasFavorites = favoriteIds.length > 0;
+  const queryClient = useQueryClient();
+
+  const queryKey = ["favorites", searchParams.toString()];
+
+  const [totalFilteredCount, setTotalFilteredCount] = useState(0);
 
   const queryFn = async ({ pageParam = "0" }) => {
     const start = Number(pageParam) * 25;
@@ -29,7 +38,7 @@ export function useFavoritesQuery() {
     const pageIds = favoriteIds.slice(start, end);
 
     if (pageIds.length === 0) {
-      return { pets: [], nextCursor: undefined };
+      return { pets: [], nextCursor: undefined, totalFilteredCount };
     }
 
     let pets = await petsApi.getPetsByIds("dogs", pageIds);
@@ -40,6 +49,31 @@ export function useFavoritesQuery() {
       );
     }
 
+    if (pageParam === "0") {
+      const allPets = await petsApi.getPetsByIds("dogs", favoriteIds);
+      let filteredPets = allPets;
+
+      if (searchParams.has("breed")) {
+        const breed = searchParams.get("breed");
+        filteredPets = filteredPets.filter((pet) => pet.breed === breed);
+      }
+
+      if (searchParams.has("ageMin") || searchParams.has("ageMax")) {
+        const minAge = searchParams.get("ageMin")
+          ? Number(searchParams.get("ageMin"))
+          : 0;
+        const maxAge = searchParams.get("ageMax")
+          ? Number(searchParams.get("ageMax"))
+          : Infinity;
+        filteredPets = filteredPets.filter(
+          (pet) => pet.age >= minAge && pet.age <= maxAge
+        );
+      }
+
+      setTotalFilteredCount(filteredPets.length);
+    }
+
+    // Apply other filters
     if (searchParams.has("breed")) {
       const breed = searchParams.get("breed");
       pets = pets.filter((pet) => pet.breed === breed);
@@ -72,7 +106,8 @@ export function useFavoritesQuery() {
     return {
       pets,
       nextCursor:
-        end < favoriteIds.length ? String(Number(pageParam) + 1) : undefined,
+        pets.length === 25 ? String(Number(pageParam) + 1) : undefined,
+      totalFilteredCount,
     };
   };
 
@@ -86,10 +121,9 @@ export function useFavoritesQuery() {
     gcTime: 1000 * 60 * 30,
   });
 
-  const removePet = (petId: string) => {
+  const optimisticallyRemovePet = (petId: string) => {
     queryClient.setQueryData<QueryData>(queryKey, (oldData) => {
       if (!oldData) return oldData;
-
       return {
         ...oldData,
         pages: oldData.pages.map((page) => ({
@@ -135,7 +169,8 @@ export function useFavoritesQuery() {
   return {
     ...query,
     pets: query.data?.pages.flatMap((page) => page.pets) ?? [],
-    removePet,
+    totalFilteredCount,
+    optimisticallyRemovePet,
     clearUnmatchedFromUI,
     clearMatchesFromUI,
   };

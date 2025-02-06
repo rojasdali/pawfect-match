@@ -25,18 +25,20 @@ export function MatchPage() {
   const { navigateBack } = useSearchStateNavigation();
   const queryClient = useQueryClient();
 
+  useEffect(() => {
+    setShowMatch(false);
+    setMatchedPet(null);
+    setIsLoading(true);
+  }, [location.state?.key]);
+
   const favoriteIds = useMemo(
     () =>
       useFavoritesStore.getState().getFavoriteIds({
         shuffle: true,
         excludeMatched: true,
       }),
-    [location.state?.key]
+    [location.state?.key] // Make sure this updates with new key
   );
-
-  useEffect(() => {
-    setIsLoading(true);
-  }, [location.state?.key]);
 
   // Redirect if not enough unmatched favorites
   if (favoriteIds.length < 2) {

@@ -22,7 +22,9 @@ export function FloatingActionButton({
   const { navigatePreservingSearch } = useSearchStateNavigation();
 
   const handleClick = () => {
-    navigatePreservingSearch(`/${type}/match`);
+    navigatePreservingSearch(`/${type}/match`, {
+      state: { key: Date.now() },
+    });
   };
 
   return (

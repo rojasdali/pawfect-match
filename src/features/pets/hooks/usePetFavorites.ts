@@ -4,17 +4,17 @@ import { useLocation } from "react-router-dom";
 
 export function usePetFavorites() {
   const { addFavorite, removeFavorite, isFavorite } = useFavoritesStore();
-  const { removePet } = useFavoritesQuery();
+  const { optimisticallyRemovePet } = useFavoritesQuery();
   const location = useLocation();
   const isOnFavoritesPage = location.pathname === "/favorites";
 
   const toggleFavorite = (petId: string) => {
     if (isFavorite(petId)) {
-      removeFavorite(petId);
-
       if (isOnFavoritesPage) {
-        removePet(petId);
+        optimisticallyRemovePet(petId);
+        return;
       }
+      removeFavorite(petId);
     } else {
       addFavorite(petId);
     }

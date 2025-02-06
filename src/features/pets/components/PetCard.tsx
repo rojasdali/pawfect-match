@@ -16,20 +16,28 @@ function formatAge(age: number): string {
 export function PetCard({ id, name, breed, age, img, zip_code }: PetCardProps) {
   const location = useLocation();
   const isMatchPage = location.pathname.includes("/match");
+  const isViewingMatches =
+    location.pathname === "/favorites" &&
+    location.search.includes("matches=true");
   const isFavorite = useFavoritesStore((state) => state.isFavorite(id));
   const isMatched = useFavoritesStore((state) => state.isMatched(id));
   const addFavorite = useFavoritesStore((state) => state.addFavorite);
   const removeFavorite = useFavoritesStore((state) => state.removeFavorite);
   const setMatched = useFavoritesStore((state) => state.setMatched);
 
-  const { removePet } = useFavoritesQuery();
+  const { optimisticallyRemovePet } = useFavoritesQuery();
 
   const handleAction = () => {
     if (isMatched) {
       setMatched(id, false);
+      if (isViewingMatches) {
+        optimisticallyRemovePet(id);
+      }
     } else if (isFavorite) {
+      if (location.pathname === "/favorites") {
+        optimisticallyRemovePet(id);
+      }
       removeFavorite(id);
-      removePet(id);
     } else {
       addFavorite(id);
     }

@@ -22,17 +22,20 @@ export function useSearchStateNavigation() {
 
   const navigatePreservingSearch = (
     to: string,
-    options?: { replace?: boolean }
+    options?: {
+      replace?: boolean;
+      state?: { [key: string]: any };
+    }
   ) => {
     saveSearchState();
 
     const fromSearchPage = location.pathname.includes("/search");
     const state = fromSearchPage
-      ? { from: location.pathname + location.search }
-      : undefined;
+      ? { from: location.pathname + location.search, ...options?.state }
+      : options?.state;
 
     navigate(to, {
-      ...options,
+      replace: options?.replace,
       state,
     });
   };
