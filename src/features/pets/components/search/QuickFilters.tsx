@@ -8,7 +8,7 @@ import {
   TooltipTrigger,
   TooltipProvider,
 } from "@/components/ui/tooltip";
-import { type QuickFilterType } from "../../types";
+import { type QuickFilterType } from "@/features/pets/types/index";
 
 interface QuickFiltersProps {
   onQuickFilter: (type: QuickFilterType) => void;
