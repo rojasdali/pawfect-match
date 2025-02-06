@@ -224,3 +224,48 @@ Based on the [Fetch Frontend Take-home Exercise](https://frontend-take-home.fetc
 - Error handling system
 - Loading state management
 - TypeScript implementation
+
+## Deployment
+
+### Vercel Deployment
+
+1. Install Vercel CLI (optional):
+
+```bash
+npm install -g vercel
+```
+
+2. Build the project:
+
+```bash
+npm run build
+```
+
+3. Deploy using one of these methods:
+
+#### Option 1: Vercel CLI
+
+```bash
+vercel login
+vercel
+```
+
+#### Option 2: Vercel Dashboard
+
+1. Push your code to GitHub
+2. Visit [Vercel Dashboard](https://vercel.com)
+3. Import your repository
+4. Configure build settings:
+   - Build Command: `npm run build`
+   - Output Directory: `dist`
+   - Install Command: `npm install`
+
+The application will be automatically deployed and you'll receive a production URL.
+
+### Environment Variables
+
+Ensure these environment variables are set in your Vercel project:
+
+```env
+VITE_API_BASE_URL=https://frontend-take-home-service.fetch.com
+```

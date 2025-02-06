@@ -1,5 +1,5 @@
 import { type Filters } from "../schemas/filters";
-import { type QuickFilterType } from "../types";
+import { type QuickFilterType } from "@/features/pets/types/index";
 import { useSearchParams } from "react-router-dom";
 import { getUserLocation } from "../utils/location";
 import { petsApi } from "../api/pets";
