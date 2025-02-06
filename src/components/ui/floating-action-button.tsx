@@ -9,12 +9,14 @@ interface FloatingActionButtonProps {
   className?: string;
   disabled?: boolean;
   isLoading?: boolean;
+  onClick?: () => void;
 }
 
 export function FloatingActionButton({
   className,
   disabled,
   isLoading,
+  onClick,
 }: FloatingActionButtonProps) {
   const location = useLocation();
   const { type = "dogs" } = useParams();
@@ -22,7 +24,11 @@ export function FloatingActionButton({
   const { navigatePreservingSearch } = useSearchStateNavigation();
 
   const handleClick = () => {
-    navigatePreservingSearch(`/${type}/match`);
+    if (onClick) {
+      onClick();
+    } else {
+      navigatePreservingSearch(`/${type}/match`);
+    }
   };
 
   return (

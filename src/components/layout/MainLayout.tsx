@@ -1,14 +1,12 @@
-import { Outlet, useParams } from "react-router-dom";
+import { Outlet } from "react-router-dom";
 import { Navbar } from "./Navbar";
 import { Footer } from "./Footer";
 import { FloatingActionButton } from "@/components/ui/floating-action-button";
 import { useFavoritesStore } from "@/stores/favorites";
 import { useMatch } from "@/features/pets/hooks/useMatch";
-import { PetType } from "@/types/pet";
 
 export function MainLayout() {
-  const { type = "dogs" } = useParams<{ type?: string }>();
-  const { findMatch, isLoading } = useMatch();
+  const { isLoading } = useMatch();
   const favoriteCount = useFavoritesStore((state) => state.getFavoriteCount());
   const hasEnoughFavorites = favoriteCount >= 2;
 
@@ -20,7 +18,6 @@ export function MainLayout() {
       </main>
       <Footer />
       <FloatingActionButton
-        onClick={() => findMatch(type as PetType)}
         disabled={!hasEnoughFavorites}
         isLoading={isLoading}
         className="animate-in fade-in slide-in-from-bottom-6 duration-500"
