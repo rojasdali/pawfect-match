@@ -8,6 +8,7 @@ import { ROUTES } from "@/config/routes";
 import { useFavoritesStore } from "@/stores/favorites";
 import { type Pet } from "@/types/pet";
 import { petsApi } from "../api/pets";
+import { MatchAnimation } from "../components/MatchAnimation";
 
 function randomInRange(min: number, max: number) {
   return Math.random() * (max - min) + min;
@@ -17,7 +18,6 @@ export function MatchPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const type = location.pathname.split("/")[0] || "dogs";
-  const [currentPetIndex, setCurrentPetIndex] = useState(0);
   const [showMatch, setShowMatch] = useState(false);
   const [favorites, setFavorites] = useState<Pet[]>([]);
   const [matchedPet, setMatchedPet] = useState<Pet | null>(null);
@@ -33,8 +33,6 @@ export function MatchPage() {
   );
 
   useEffect(() => {
-    setCurrentPetIndex(0);
-    setShowMatch(false);
     setIsLoading(true);
   }, [location.state?.key]);
 
@@ -63,20 +61,10 @@ export function MatchPage() {
     loadFavoritesAndFindMatch();
   }, [loadFavoritesAndFindMatch]);
 
-  useEffect(() => {
-    if (isLoading || !favorites.length || showMatch) return;
-
-    const interval = setInterval(() => {
-      setCurrentPetIndex((prev) => (prev + 1) % favorites.length);
-    }, 150);
-
-    const timeout = setTimeout(() => {
-      setShowMatch(true);
-
-      if (matchedPet) {
-        useFavoritesStore.getState().setMatched(matchedPet.id, true);
-      }
-
+  const handleAnimationComplete = useCallback(() => {
+    setShowMatch(true);
+    if (matchedPet) {
+      useFavoritesStore.getState().setMatched(matchedPet.id, true);
       const count = 3;
       const defaults = {
         spread: 120,
@@ -88,7 +76,6 @@ export function MatchPage() {
         colors: ["#FFE400", "#FFBD00", "#E89400"],
         scalar: 2,
       };
-
       function fire(particleRatio: number, opts: any) {
         confetti({
           ...defaults,
@@ -96,7 +83,6 @@ export function MatchPage() {
           particleCount: Math.floor(8 * particleRatio),
         });
       }
-
       for (let i = 0; i < count; i++) {
         setTimeout(() => {
           fire(0.25, {
@@ -107,26 +93,20 @@ export function MatchPage() {
           });
         }, i * 750);
       }
-    }, 3000);
-
-    return () => {
-      clearInterval(interval);
-      clearTimeout(timeout);
-    };
-  }, [favorites.length, isLoading, showMatch, matchedPet]);
+    }
+  }, [matchedPet]);
 
   const BackButton = () => (
     <Button
       variant="ghost"
       size="sm"
       onClick={() => {
-        if (location.pathname.includes("/match")) {
-          navigate(`/${type}/match`, {
-            replace: true,
-            state: { key: Date.now() },
-          });
+        if (location.state?.from) {
+          navigate(location.state.from, { replace: true });
         } else {
-          navigate(ROUTES.HOME);
+          navigate(`/search/${type}`, {
+            replace: true,
+          });
         }
       }}
       className="gap-2 mt-4"
@@ -167,7 +147,10 @@ export function MatchPage() {
           {showMatch ? (
             <PetCard {...matchedPet} />
           ) : (
-            favorites.length > 0 && <PetCard {...favorites[currentPetIndex]} />
+            <MatchAnimation
+              pets={favorites}
+              onAnimationComplete={handleAnimationComplete}
+            />
           )}
         </div>
       </main>

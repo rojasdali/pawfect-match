@@ -3,7 +3,12 @@ import { useAuth } from "@/features/auth/hooks/useAuth";
 import { LogOut, Moon, PawPrint, Sun, User, Heart, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useTheme } from "@/providers/ThemeProvider";
-import { useNavigate, useLocation } from "react-router-dom";
+import {
+  useNavigate,
+  useLocation,
+  useMatch,
+  useParams,
+} from "react-router-dom";
 import { useFavoritesStore } from "@/stores/favorites";
 import { cn } from "@/lib/utils";
 import {
@@ -23,6 +28,7 @@ import { ROUTES } from "@/config/routes";
 export function Navbar() {
   const navigate = useNavigate();
   const location = useLocation();
+  const params = useParams();
   const user = useAuthStore((state) => state.user);
   const { logout } = useAuth();
   const { theme, toggleTheme } = useTheme();
@@ -32,13 +38,22 @@ export function Navbar() {
   );
   const hasFavorites = favoriteCount > 0;
   const hasMatches = matchedCount > 0;
+  const searchMatch = useMatch("/search/:type");
+  const type = params.type || searchMatch?.params.type || "dogs";
 
   const handleHomeClick = () => {
-    if (location.state?.from) {
-      navigate(location.state.from);
+    if (location.key !== "default") {
+      navigate(-1);
     } else {
       navigate(ROUTES.HOME);
     }
+  };
+
+  const handleMatchClick = () => {
+    navigate(`/${type}/match`, {
+      relative: "route",
+      state: { from: location.pathname + location.search },
+    });
   };
 
   return (
@@ -96,7 +111,7 @@ export function Navbar() {
                   <Button
                     variant="ghost"
                     size="icon"
-                    onClick={() => navigate("/favorites?matches=true")}
+                    onClick={handleMatchClick}
                     className="relative h-10 w-10"
                   >
                     <Star className="h-6 w-6 fill-yellow-400 text-yellow-400" />

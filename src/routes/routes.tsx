@@ -13,6 +13,7 @@ import { useAuthStore } from "@/stores/auth";
 import { FavoritesPage } from "@/features/pets/pages/FavoritesPage";
 import { ROUTES } from "@/config/routes";
 import { MatchPage } from "@/features/pets/pages/MatchPage";
+import { LandingPage } from "@/features/home/pages/LandingPage";
 
 const VALID_PET_TYPES = ["dogs"] as const;
 type PetType = (typeof VALID_PET_TYPES)[number];
@@ -38,6 +39,10 @@ function ProtectedLayout() {
 }
 
 export const routes = [
+  {
+    path: "/",
+    element: <LandingPage />,
+  },
   {
     path: "/login",
     element: (

@@ -113,10 +113,11 @@ export function FavoritesPage() {
                 variant="outline"
                 size="sm"
                 onClick={handleClearFavorites}
-                className="text-red-600 dark:text-red-400"
+                className="text-red-600 dark:text-red-400 h-8 text-xs sm:h-9 sm:text-sm"
               >
-                <Trash2 className="h-4 w-4 mr-2" />
-                Clear favorites
+                <Trash2 className="h-4 w-4 mr-1 sm:mr-2" />
+                <span className="hidden sm:inline">Clear </span>
+                favorites
               </Button>
             )}
             {hasMatches && (
@@ -124,10 +125,11 @@ export function FavoritesPage() {
                 variant="outline"
                 size="sm"
                 onClick={handleClearMatches}
-                className="text-yellow-600 dark:text-yellow-400"
+                className="text-yellow-600 dark:text-yellow-400 h-8 text-xs sm:h-9 sm:text-sm"
               >
-                <Star className="h-4 w-4 mr-2" />
-                Clear matches
+                <Star className="h-4 w-4 mr-1 sm:mr-2" />
+                <span className="hidden sm:inline">Clear </span>
+                matches
               </Button>
             )}
           </div>

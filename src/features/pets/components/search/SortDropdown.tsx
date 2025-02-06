@@ -27,16 +27,16 @@ export function SortDropdown({
 
   return (
     <Select value={currentSort} onValueChange={onSortChange}>
-      <SelectTrigger className="w-10 lg:w-auto">
+      <SelectTrigger className={showText ? "w-auto min-w-10" : "w-10"}>
         <SelectValue>
-          {showText ? (
-            <span className="flex items-center gap-2">
-              <ArrowUpDown className="h-4 w-4" />
-              {sortOptions[currentSort as keyof typeof sortOptions]}
-            </span>
-          ) : (
-            <ArrowUpDown className="h-4 w-4" />
-          )}
+          <span className="flex items-center gap-2 truncate">
+            <ArrowUpDown className="h-4 w-4 shrink-0" />
+            {showText && (
+              <span className="hidden lg:inline">
+                {sortOptions[currentSort as keyof typeof sortOptions]}
+              </span>
+            )}
+          </span>
         </SelectValue>
       </SelectTrigger>
       <SelectContent>
