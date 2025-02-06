@@ -22,7 +22,8 @@ export function PetGrid({
   hasNextPage,
   onLoadMore,
   isFetchingNextPage,
-}: PetGridProps) {
+  onPetRemove,
+}: PetGridProps & { onPetRemove?: (id: string) => void }) {
   const loadMoreRef = useRef<HTMLDivElement>(null);
   const breakpoint = useBreakpoint();
   const isFavorite = useFavoritesStore((state) => state.isFavorite);
@@ -59,7 +60,12 @@ export function PetGrid({
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
         <>
           {pets.map((pet) => (
-            <PetCard key={pet.id} {...pet} isFavorite={isFavorite(pet.id)} />
+            <PetCard
+              key={pet.id}
+              {...pet}
+              isFavorite={isFavorite(pet.id)}
+              onRemove={onPetRemove}
+            />
           ))}
           {isFetchingNextPage && skeletonsInLastRow > 0 && (
             <>

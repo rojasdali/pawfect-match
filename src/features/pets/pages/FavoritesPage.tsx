@@ -18,6 +18,7 @@ export function FavoritesPage() {
     clearUnmatchedFromUI,
     clearMatchesFromUI,
     totalFilteredCount,
+    optimisticallyRemovePet,
   } = useFavoritesQuery();
 
   const totalFavorites = useFavoritesStore((state) =>
@@ -150,6 +151,7 @@ export function FavoritesPage() {
             hasNextPage={!!hasNextPage}
             onLoadMore={() => fetchNextPage()}
             isFetchingNextPage={isFetchingNextPage}
+            onPetRemove={optimisticallyRemovePet}
           />
         )}
       </main>

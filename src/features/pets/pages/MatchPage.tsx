@@ -37,7 +37,7 @@ export function MatchPage() {
         shuffle: true,
         excludeMatched: true,
       }),
-    [location.state?.key] // Make sure this updates with new key
+    [location.state?.key]
   );
 
   // Redirect if not enough unmatched favorites
